@@ -1,0 +1,10 @@
+---
+description: 
+alwaysApply: false
+enabled: true
+updatedAt: 2026-02-27T17:08:28.432Z
+provider: 
+---
+
+- Registration routes (`/register`) are disabled by default for this project.
+- If user registration is needed later, re-enable `register` routes in `routes/auth.php` and add appropriate validation/anti-abuse measures.

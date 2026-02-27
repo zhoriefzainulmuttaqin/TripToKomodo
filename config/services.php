@@ -35,4 +35,23 @@ return [
         ],
     ],
 
+    'geoip' => [
+        'endpoint' => env('GEOIP_ENDPOINT'),
+        'key' => env('GEOIP_API_KEY'),
+    ],
+
+    'exchange_rate' => [
+        'endpoint' => env('EXCHANGE_RATE_ENDPOINT'),
+    ],
+
+    'whatsapp' => [
+        'endpoint' => env('WHATSAPP_API_ENDPOINT'),
+        'token' => env('WHATSAPP_API_TOKEN'),
+    ],
+
+    'retargeting' => [
+        'meta_pixel_id' => env('META_PIXEL_ID'),
+        'google_ads_id' => env('GOOGLE_ADS_ID'),
+    ],
+
 ];
