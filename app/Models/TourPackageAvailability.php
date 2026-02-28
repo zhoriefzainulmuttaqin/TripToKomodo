@@ -6,20 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TourReview extends Model
+class TourPackageAvailability extends Model
 {
     use SoftDeletes;
+
     protected $fillable = [
         'tour_package_id',
-        'language_code',
-        'author_name',
-        'rating',
-        'review',
-        'is_approved',
+        'date',
+        'is_available',
+        'available_slots',
+        'price_idr_override',
+        'note',
     ];
 
     protected $casts = [
-        'is_approved' => 'boolean',
+        'date' => 'date',
+        'is_available' => 'boolean',
+        'available_slots' => 'integer',
+        'price_idr_override' => 'decimal:2',
     ];
 
     public function package(): BelongsTo

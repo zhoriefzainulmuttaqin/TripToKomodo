@@ -1,0 +1,13 @@
+---
+description: 
+alwaysApply: false
+enabled: true
+updatedAt: 2026-02-28T16:50:52.293Z
+provider: 
+---
+
+- Semua tabel/kolom baru gunakan bahasa Inggris.
+- Konten multi-bahasa disimpan di `tour_package_translations` per `language_code`.
+- SEO utama per bahasa: `slug`, `meta_title`, `meta_description`, `meta_keywords`.
+- Gunakan SoftDeletes untuk data utama (paket, translation, images, availability, destinations).
+- URL file upload disimpan sebagai path publik relatif (mis. `/storage/tour-images/...`) agar tidak bergantung pada `APP_URL`.

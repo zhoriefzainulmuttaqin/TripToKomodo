@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourFaq extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'tour_package_id',
         'language_code',

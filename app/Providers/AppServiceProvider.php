@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Currency;
 use App\Models\Language;
+use App\Models\TourCategory;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,9 +26,11 @@ class AppServiceProvider extends ServiceProvider
         try {
             $languages = Language::query()->where('is_active', true)->get();
             $currencies = Currency::query()->where('is_active', true)->get();
+            $tourCategories = TourCategory::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
         } catch (\Throwable) {
             $languages = collect();
             $currencies = collect();
+            $tourCategories = collect();
         }
 
         if ($languages->isEmpty()) {
@@ -47,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         View::share([
             'activeLanguages' => $languages,
             'activeCurrencies' => $currencies,
+            'activeTourCategories' => $tourCategories,
             'currentCurrency' => session('currency', 'IDR'),
         ]);
     }

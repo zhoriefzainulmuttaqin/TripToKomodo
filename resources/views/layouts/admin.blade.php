@@ -39,6 +39,9 @@
                     <nav class="space-y-1 text-sm">
                         <a href="{{ route('admin.dashboard') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Dashboard</a>
                         <a href="{{ route('admin.destinations.index') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Destinasi</a>
+                        <a href="{{ route('admin.tour-categories.index') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Kategori Trip</a>
+                        <a href="{{ route('admin.tour-packages.index') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Paket Trip</a>
+                        <a href="{{ route('admin.web-settings.edit') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Pengaturan Website</a>
                     </nav>
                 </aside>
 

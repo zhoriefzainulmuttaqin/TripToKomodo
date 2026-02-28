@@ -12,7 +12,7 @@ class DestinationController
 {
     public function index(Request $request): View
     {
-        $query = DB::table('destinations');
+        $query = DB::table('destinations')->whereNull('deleted_at');
 
         if ($request->filled('q')) {
             $q = trim((string) $request->string('q'));
@@ -82,7 +82,7 @@ class DestinationController
 
     public function edit(int $id): View
     {
-        $destination = DB::table('destinations')->where('id', $id)->first();
+        $destination = DB::table('destinations')->where('id', $id)->whereNull('deleted_at')->first();
         abort_unless($destination, 404);
 
         return view('admin.destinations.edit', [
@@ -92,8 +92,9 @@ class DestinationController
 
     public function update(Request $request, int $id): RedirectResponse
     {
-        $destination = DB::table('destinations')->where('id', $id)->first();
+        $destination = DB::table('destinations')->where('id', $id)->whereNull('deleted_at')->first();
         abort_unless($destination, 404);
+
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -127,10 +128,15 @@ class DestinationController
 
     public function destroy(int $id): RedirectResponse
     {
-        $destination = DB::table('destinations')->where('id', $id)->first();
+        $destination = DB::table('destinations')->where('id', $id)->whereNull('deleted_at')->first();
         abort_unless($destination, 404);
 
-        DB::table('destinations')->where('id', $id)->delete();
+        $payload = ['deleted_at' => now()];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('destinations', 'updated_at')) {
+            $payload['updated_at'] = now();
+        }
+
+        DB::table('destinations')->where('id', $id)->update($payload);
 
         return redirect()->route('admin.destinations.index')->with('status', 'Destinasi berhasil dihapus.');
     }
