@@ -11,12 +11,35 @@
                 <h1 class="mt-3 text-3xl font-semibold text-slate-900">Paket Labuan Bajo untuk semua gaya travel</h1>
                 <p class="mt-3 text-sm text-slate-600">Pilih durasi, tipe kapal, dan pengalaman terbaik untuk trip Anda.</p>
 
-                @if (!empty($selectedCategory))
-                    <div class="mt-3">
-                        <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800">
-                            Filter kategori: {{ $selectedCategory }}
-                        </span>
-                        <a href="{{ route('tours.index', ['lang' => app()->getLocale()]) }}" class="ml-2 text-xs text-slate-600 hover:text-emerald-700">Hapus filter</a>
+                @php
+                    $hasAnyFilter = !empty($selectedCategory) || !empty($selectedDuration) || !empty($selectedDestinations);
+                @endphp
+
+                @if ($hasAnyFilter)
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        @if (!empty($selectedCategory))
+                            <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800">
+                                Tipe kapal: {{ $selectedCategory }}
+                            </span>
+                        @endif
+
+                        @if (!empty($selectedDuration))
+                            @php
+                                $durParts = explode('-', (string) $selectedDuration);
+                                $durLabel = (int) ($durParts[0] ?? 0) . ' hari • ' . (int) ($durParts[1] ?? 0) . ' malam';
+                            @endphp
+                            <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800">
+                                Durasi: {{ $durLabel }}
+                            </span>
+                        @endif
+
+                        @if (!empty($selectedDestinations))
+                            <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800">
+                                Destinasi: {{ !empty($selectedDestinationNames) ? implode(', ', $selectedDestinationNames) : (count($selectedDestinations) . ' dipilih') }}
+                            </span>
+                        @endif
+
+                        <a href="{{ route('tours.index', ['lang' => app()->getLocale()]) }}" class="text-xs text-slate-600 hover:text-emerald-700">Reset</a>
                     </div>
                 @endif
             </div>

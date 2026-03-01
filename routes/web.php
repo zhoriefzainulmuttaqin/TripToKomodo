@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DestinationController as AdminDestinationController;
+use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\TourCategoryController as AdminTourCategoryController;
 use App\Http\Controllers\Admin\TourPackageAvailabilityController as AdminTourPackageAvailabilityController;
 use App\Http\Controllers\Admin\TourPackageController as AdminTourPackageController;
 use App\Http\Controllers\Admin\TourPackageImageController as AdminTourPackageImageController;
 use App\Http\Controllers\Admin\WebSettingController as AdminWebSettingController;
+use App\Http\Controllers\ContactBookingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
@@ -25,9 +27,28 @@ Route::get('/currency/{code}', function (string $code) {
 })->name('currency.switch');
 
 Route::get('/lang/{lang}', function (string $lang) {
+    $supportedLocales = ['id', 'en', 'zh', 'es', 'de', 'ru'];
+    if (!in_array($lang, $supportedLocales, true)) {
+        $lang = 'en';
+    }
+
     session(['locale' => $lang]);
 
-    return redirect()->back();
+    $referer = url()->previous();
+    $parts = parse_url($referer);
+    $path = $parts['path'] ?? '';
+    $segments = array_values(array_filter(explode('/', $path), fn($seg) => $seg !== ''));
+
+    if (!empty($segments) && in_array($segments[0], $supportedLocales, true)) {
+        $segments[0] = $lang;
+        $newPath = '/' . implode('/', $segments);
+    } else {
+        $newPath = '/' . $lang;
+    }
+
+    $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+    return redirect($newPath . $query);
 })->name('lang.switch');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
@@ -57,6 +78,7 @@ Route::prefix('admin')
     ->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::resource('destinations', AdminDestinationController::class)->except(['show']);
+        Route::resource('faqs', AdminFaqController::class)->except(['show']);
         Route::resource('tour-categories', AdminTourCategoryController::class)->except(['show']);
         Route::resource('tour-packages', AdminTourPackageController::class)->except(['show']);
         Route::put('tour-packages/{id}/restore', [AdminTourPackageController::class, 'restore'])->name('tour-packages.restore');
@@ -69,8 +91,15 @@ Route::prefix('admin')
         Route::put('web-settings', [AdminWebSettingController::class, 'update'])->name('web-settings.update');
     });
 
-Route::prefix('{lang?}')
-    ->where(['lang' => 'id|en|ru|zh|de'])
+Route::get('/', function () {
+    $lang = session('locale') ?? config('app.locale', 'en');
+    $lang = in_array($lang, ['id', 'en', 'zh', 'es', 'de', 'ru'], true) ? $lang : 'en';
+
+    return redirect()->route('home', ['lang' => $lang]);
+})->name('root');
+
+Route::prefix('{lang}')
+    ->where(['lang' => 'id|en|zh|es|de|ru'])
     ->group(function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -81,6 +110,9 @@ Route::prefix('{lang?}')
 
         Route::get('/rental-mobil', [PageController::class, 'rentalMobil'])->name('rental.mobil');
         Route::get('/komodo-insider', [PageController::class, 'blog'])->name('blog.index');
+        Route::get('/about', [PageController::class, 'about'])->name('about');
+        Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+        Route::post('/contact/booking', ContactBookingController::class)->middleware('throttle:10,1')->name('contact.booking');
     });
 
 require __DIR__ . '/auth.php';

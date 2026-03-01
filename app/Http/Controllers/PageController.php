@@ -15,4 +15,16 @@ class PageController extends Controller
     {
         return view('pages.blog');
     }
+
+    public function contact(): View
+    {
+        return view('pages.contact');
+    }
+
+    public function about(): View
+    {
+        return view('pages.about');
+    }
+
+
 }

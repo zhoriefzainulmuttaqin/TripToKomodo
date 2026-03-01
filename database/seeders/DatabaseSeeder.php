@@ -86,8 +86,15 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Chinese', 'native_name' => '中文', 'is_active' => true],
         );
         Language::updateOrCreate(
+            ['code' => 'es'],
+            ['name' => 'Spanish', 'native_name' => 'Español', 'is_active' => true],
+        );
+        Language::updateOrCreate(
             ['code' => 'de'],
             ['name' => 'German', 'native_name' => 'Deutsch', 'is_active' => true],
         );
+        $this->call([
+            CurrencySeeder::class,
+        ]);
     }
 }

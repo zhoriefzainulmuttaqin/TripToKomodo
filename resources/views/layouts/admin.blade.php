@@ -9,6 +9,7 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
 
+        @stack('styles')
         @stack('schema')
     </head>
     <body class="bg-white text-slate-900 antialiased">
@@ -34,14 +35,59 @@
                 </div>
             </div>
 
-            <div class="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[220px_1fr]">
+            <div class="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[240px_1fr]">
+                @php
+                    $routeIs = fn (string $name) => request()->routeIs($name);
+                    $activeLink = 'bg-white text-emerald-700';
+                    $inactiveLink = 'text-slate-800 hover:bg-white hover:text-emerald-700';
+                    $isWebSettings = $routeIs('admin.web-settings.*');
+                    $wsSection = (string) request()->query('section', 'all');
+                @endphp
+
                 <aside class="rounded-3xl border border-emerald-100 bg-emerald-50 p-4">
-                    <nav class="space-y-1 text-sm">
-                        <a href="{{ route('admin.dashboard') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Dashboard</a>
-                        <a href="{{ route('admin.destinations.index') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Destinasi</a>
-                        <a href="{{ route('admin.tour-categories.index') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Kategori Trip</a>
-                        <a href="{{ route('admin.tour-packages.index') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Paket Trip</a>
-                        <a href="{{ route('admin.web-settings.edit') }}" class="block rounded-2xl px-4 py-3 text-slate-800 hover:bg-white hover:text-emerald-700">Pengaturan Website</a>
+                    <nav class="space-y-4 text-sm">
+                        <div>
+                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Umum</p>
+                            <a href="{{ route('admin.dashboard') }}" class="block rounded-2xl px-4 py-3 {{ $routeIs('admin.dashboard') ? $activeLink : $inactiveLink }}">Dashboard</a>
+                        </div>
+
+                        <div>
+                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Konten</p>
+                            <a href="{{ route('admin.destinations.index') }}" class="block rounded-2xl px-4 py-3 {{ $routeIs('admin.destinations.*') ? $activeLink : $inactiveLink }}">Destinasi</a>
+                            <a href="{{ route('admin.faqs.index') }}" class="mt-1 block rounded-2xl px-4 py-3 {{ $routeIs('admin.faqs.*') ? $activeLink : $inactiveLink }}">FAQ</a>
+                        </div>
+
+                        <div>
+                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Trip</p>
+                            <a href="{{ route('admin.tour-categories.index') }}" class="block rounded-2xl px-4 py-3 {{ $routeIs('admin.tour-categories.*') ? $activeLink : $inactiveLink }}">Kategori Trip</a>
+                            <a href="{{ route('admin.tour-packages.index') }}" class="mt-1 block rounded-2xl px-4 py-3 {{ $routeIs('admin.tour-packages.*') ? $activeLink : $inactiveLink }}">Paket Trip</a>
+                        </div>
+
+                        <div>
+                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Pengaturan</p>
+
+                            <details class="rounded-2xl" {{ $isWebSettings ? 'open' : '' }}>
+                                <summary class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-4 py-3 {{ $isWebSettings ? $activeLink : $inactiveLink }}">
+                                    <span>Website Settings</span>
+                                    <span class="text-xs">⌄</span>
+                                </summary>
+
+                                <div class="mt-2 space-y-1 pl-2">
+                                    @php
+                                        $wsBase = route('admin.web-settings.edit');
+                                        $wsAll = route('admin.web-settings.edit', ['section' => 'all']);
+                                        $wsAbout = route('admin.web-settings.edit', ['section' => 'about']);
+                                        $wsContact = route('admin.web-settings.edit', ['section' => 'contact']);
+                                        $wsHero = route('admin.web-settings.edit', ['section' => 'home-hero']);
+                                    @endphp
+
+                                    <a href="{{ $wsAll }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'all') || ($isWebSettings && $wsSection === '') ? $activeLink : $inactiveLink }}">Semua</a>
+                                    <a href="{{ $wsAbout }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'about') ? $activeLink : $inactiveLink }}">About Us</a>
+                                    <a href="{{ $wsContact }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'contact') ? $activeLink : $inactiveLink }}">Kontak</a>
+                                    <a href="{{ $wsHero }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'home-hero') ? $activeLink : $inactiveLink }}">Home Hero</a>
+                                </div>
+                            </details>
+                        </div>
                     </nav>
                 </aside>
 
@@ -56,5 +102,7 @@
                 </main>
             </div>
         </div>
+
+        @stack('scripts')
     </body>
 </html>

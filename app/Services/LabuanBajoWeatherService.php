@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class LabuanBajoWeatherService
 {
-    private const CACHE_KEY = 'weather.labuanbajo.v1';
+    private const CACHE_KEY = 'weather.labuanbajo.v2';
 
     public function get(bool $forceRefresh = false): array
     {
@@ -65,7 +65,7 @@ class LabuanBajoWeatherService
                     'temp_min' => isset($tmin[$i]) ? (int) round((float) $tmin[$i]) : null,
                     'precipitation_probability_max' => isset($pop[$i]) ? (int) round((float) $pop[$i]) : null,
                     'weathercode' => $code,
-                    'status' => $this->weatherCodeToTextId($code),
+                    'status_key' => $this->weatherCodeToKey($code),
                     'scene' => $this->weatherCodeToScene($code),
                 ];
             }
@@ -89,7 +89,7 @@ class LabuanBajoWeatherService
                     'temperature' => isset($current['temperature']) ? (int) round((float) $current['temperature']) : null,
                     'windspeed' => isset($current['windspeed']) ? (float) $current['windspeed'] : null,
                     'weathercode' => $currentCode,
-                    'status' => $this->weatherCodeToTextId($currentCode),
+                    'status_key' => $this->weatherCodeToKey($currentCode),
                     'scene' => $this->weatherCodeToScene($currentCode),
                     'is_day' => isset($current['is_day']) ? (bool) $current['is_day'] : null,
                     'time' => $current['time'] ?? null,
@@ -144,21 +144,21 @@ class LabuanBajoWeatherService
         return 'cloudy';
     }
 
-    private function weatherCodeToTextId(?int $code): string
+    private function weatherCodeToKey(?int $code): string
     {
         return match (true) {
-            $code === null => 'Tidak diketahui',
-            $code === 0 => 'Cerah',
-            $code === 1 => 'Cerah',
-            $code === 2 => 'Cerah Berawan',
-            $code === 3 => 'Berawan',
-            in_array($code, [45, 48], true) => 'Berkabut',
-            $code >= 51 && $code <= 57 => 'Gerimis',
-            $code >= 61 && $code <= 65 => 'Hujan',
-            $code >= 66 && $code <= 67 => 'Hujan Lebat',
-            $code >= 80 && $code <= 82 => 'Hujan',
-            $code >= 95 && $code <= 99 => 'Badai Petir',
-            default => 'Berawan',
+            $code === null => 'unknown',
+            $code === 0 => 'clear',
+            $code === 1 => 'clear',
+            $code === 2 => 'partly_cloudy',
+            $code === 3 => 'cloudy',
+            in_array($code, [45, 48], true) => 'mist',
+            $code >= 51 && $code <= 57 => 'drizzle',
+            $code >= 61 && $code <= 65 => 'rain',
+            $code >= 66 && $code <= 67 => 'heavy_rain',
+            $code >= 80 && $code <= 82 => 'rain',
+            $code >= 95 && $code <= 99 => 'thunderstorm',
+            default => 'cloudy',
         };
     }
 }

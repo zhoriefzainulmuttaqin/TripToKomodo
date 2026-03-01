@@ -16,6 +16,125 @@
     };
 @endphp
 
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">
+    <style>
+        .js-quill {
+            border: 1px solid #e2e8f0; /* slate-200 */
+            border-radius: 1rem; /* rounded-2xl */
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .js-quill .ql-toolbar.ql-snow {
+            border: 0;
+            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+        }
+
+        .js-quill .ql-container.ql-snow {
+            border: 0;
+        }
+
+        .js-quill .ql-editor {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 10rem;
+        }
+
+        .js-quill[data-min-height="8"] .ql-editor {
+            min-height: 8rem;
+        }
+
+        /* Tailwind preflight menghilangkan bullet/number list. Balikin khusus untuk konten Quill. */
+        .js-quill .ql-editor ul {
+            list-style: disc;
+            padding-left: 1.25rem;
+        }
+
+        .js-quill .ql-editor ol {
+            list-style: decimal;
+            padding-left: 1.25rem;
+        }
+
+        .js-quill .ql-editor h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 0.75rem 0 0.5rem;
+        }
+
+        .js-quill .ql-editor h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.25;
+            margin: 0.75rem 0 0.5rem;
+        }
+
+        .js-quill .ql-editor h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 0.75rem 0 0.5rem;
+        }
+    </style>
+@endpush
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.Quill) return;
+
+            const editors = document.querySelectorAll('.js-quill');
+            editors.forEach((container) => {
+                const inputId = container.getAttribute('data-input-id');
+                if (!inputId) return;
+
+                const input = document.getElementById(inputId);
+                if (!input) return;
+
+                const editorEl = container.querySelector('.js-quill-editor');
+                if (!editorEl) return;
+
+                const quill = new Quill(editorEl, {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ header: [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ list: 'ordered' }, { list: 'bullet' }],
+                            ['blockquote', 'code-block'],
+                            ['link'],
+                            ['clean'],
+                        ],
+                    },
+                });
+
+                // Set initial HTML
+                const initial = (input.value || '').trim();
+                if (initial !== '') {
+                    quill.clipboard.dangerouslyPasteHTML(initial);
+                }
+
+                const syncToInput = () => {
+                    const text = (quill.getText() || '').trim();
+                    if (text === '') {
+                        input.value = '';
+                        return;
+                    }
+
+                    input.value = quill.root.innerHTML;
+                };
+
+                quill.on('text-change', syncToInput);
+
+                // ensure sync on load
+                syncToInput();
+            });
+        });
+    </script>
+@endpush
+
 <div class="space-y-10">
     <div>
         <p class="text-xs uppercase tracking-[0.25em] text-emerald-600">Basic</p>
@@ -167,7 +286,8 @@
                 @forelse($destinations as $d)
                     <label class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
                         <input type="checkbox" name="destinations[]" value="{{ $d->id }}" class="h-4 w-4 rounded border-slate-300" @checked(in_array($d->id, $selectedDestinations)) />
-                        <span class="text-slate-800">{{ $d->name }}</span>
+                        <span class="text-slate-800">{{ $d->display_name ?? $d->name }}</span>
+
                     </label>
                 @empty
                     <div class="text-sm text-slate-600">Belum ada destinasi. Tambahkan di menu Destinasi.</div>
@@ -213,22 +333,30 @@
 
                         <div class="md:col-span-2">
                             <label class="text-sm font-semibold text-slate-900">Long description</label>
-                            <textarea name="translations[{{ $code }}][description]" rows="6" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">{{ $getTrans($code, 'description') }}</textarea>
+                            @php $idDesc = 'quill_description_' . $code; @endphp
+                            <input id="{{ $idDesc }}" type="hidden" name="translations[{{ $code }}][description]" value="{{ $getTrans($code, 'description') }}" />
+                            <div class="js-quill mt-2" data-input-id="{{ $idDesc }}"><div class="js-quill-editor"></div></div>
                         </div>
 
                         <div class="md:col-span-2">
                             <label class="text-sm font-semibold text-slate-900">Itinerary</label>
-                            <textarea name="translations[{{ $code }}][itinerary]" rows="6" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">{{ $getTrans($code, 'itinerary') }}</textarea>
+                            @php $idIt = 'quill_itinerary_' . $code; @endphp
+                            <input id="{{ $idIt }}" type="hidden" name="translations[{{ $code }}][itinerary]" value="{{ $getTrans($code, 'itinerary') }}" />
+                            <div class="js-quill mt-2" data-input-id="{{ $idIt }}"><div class="js-quill-editor"></div></div>
                         </div>
 
                         <div>
                             <label class="text-sm font-semibold text-slate-900">Included</label>
-                            <textarea name="translations[{{ $code }}][includes]" rows="5" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">{{ $getTrans($code, 'includes') }}</textarea>
+                            @php $idInc = 'quill_includes_' . $code; @endphp
+                            <input id="{{ $idInc }}" type="hidden" name="translations[{{ $code }}][includes]" value="{{ $getTrans($code, 'includes') }}" />
+                            <div class="js-quill mt-2" data-input-id="{{ $idInc }}" data-min-height="8"><div class="js-quill-editor"></div></div>
                         </div>
 
                         <div>
                             <label class="text-sm font-semibold text-slate-900">Excluded</label>
-                            <textarea name="translations[{{ $code }}][excludes]" rows="5" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">{{ $getTrans($code, 'excludes') }}</textarea>
+                            @php $idExc = 'quill_excludes_' . $code; @endphp
+                            <input id="{{ $idExc }}" type="hidden" name="translations[{{ $code }}][excludes]" value="{{ $getTrans($code, 'excludes') }}" />
+                            <div class="js-quill mt-2" data-input-id="{{ $idExc }}" data-min-height="8"><div class="js-quill-editor"></div></div>
                         </div>
 
                         <div class="md:col-span-2">

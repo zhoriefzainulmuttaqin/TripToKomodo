@@ -235,7 +235,23 @@ class TourPackageController
 
         $operators = TourOperator::query()->where('is_active', true)->orderBy('name')->get();
         $categories = TourCategory::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
-        $destinations = Destination::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+
+        $locale = app()->getLocale();
+        $fallbackLocale = (string) config('app.fallback_locale', 'en');
+        $translationLocales = array_values(array_unique([$locale, $fallbackLocale]));
+
+        $destinations = Destination::query()
+            ->where('is_active', true)
+            ->with(['translations' => fn ($q) => $q->whereIn('language_code', $translationLocales)])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($destination) use ($locale, $fallbackLocale) {
+                $translation = $destination->translationFor($locale, $fallbackLocale);
+                $destination->display_name = $translation?->name ?? $destination->name;
+
+                return $destination;
+            });
 
         return [
             'languages' => $languages,
@@ -243,6 +259,7 @@ class TourPackageController
             'categories' => $categories,
             'destinations' => $destinations,
         ];
+
     }
 
     private function syncDestinations(TourPackage $package, array $destinationIds): void

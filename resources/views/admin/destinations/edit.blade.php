@@ -12,7 +12,7 @@
         <a href="{{ route('admin.destinations.index') }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm hover:text-emerald-700">Kembali</a>
     </div>
 
-    <form method="POST" action="{{ route('admin.destinations.update', $destination->id) }}" class="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="POST" action="{{ route('admin.destinations.update', $destination->id) }}" enctype="multipart/form-data" class="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         @csrf
         @method('PUT')
 

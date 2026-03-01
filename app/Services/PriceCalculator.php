@@ -82,7 +82,7 @@ class PriceCalculator
             return $amount;
         }
 
-        return $amount * (float) $rate;
+        return $amount / (float) $rate;
     }
 
     protected function applyPsychologyPricing(float $amount, string $currencyCode): float

@@ -3,9 +3,10 @@
         $langIcons = [
             'id' => '🇮🇩',
             'en' => '🇬🇧',
-            'ru' => '🇷🇺',
             'zh' => '🇨🇳',
+            'es' => '🇪🇸',
             'de' => '🇩🇪',
+            'ru' => '🇷🇺',
         ];
 
         $currencySymbols = [
@@ -23,16 +24,24 @@
         $curCode = $currentCurrency ?? 'IDR';
         $curSymbol = $activeCurrencies->firstWhere('code', $curCode)?->symbol ?? ($currencySymbols[$curCode] ?? $curCode);
         $homeUrl = route('home', ['lang' => $localeCode]);
-        $contactUrl = $homeUrl . '#contact';
+        $contactPageUrl = route('contact', ['lang' => $localeCode]);
+        $aboutPageUrl = route('about', ['lang' => $localeCode]);
         $toursUrl = route('tours.index', ['lang' => $localeCode]);
+
+        $contactEmail = $contactSettings['email'] ?? 'hello@triptokomodo.com';
+        $contactPhone = $contactSettings['phone'] ?? '+62 812 0000 0000';
+        $contactWhatsapp = $contactSettings['whatsapp'] ?? $contactPhone;
+        $contactWhatsappUrl = $contactSettings['whatsapp_url'] ?? 'https://wa.me/6281200000000';
+
+        $nav = trans('nav');
     @endphp
 
     <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="{{ $homeUrl }}" class="flex items-center gap-3">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-semibold">LB</span>
             <div>
-                <p class="text-sm uppercase tracking-[0.3em] text-emerald-600">Labuan Bajo</p>
-                <p class="text-base font-semibold text-slate-900">Trip to Komodo</p>
+                <p class="text-sm uppercase tracking-[0.3em] text-emerald-600">{{ $nav['brand_tagline'] }}</p>
+                <p class="text-base font-semibold text-slate-900">{{ $nav['brand_name'] }}</p>
             </div>
         </a>
 
@@ -40,14 +49,14 @@
 
             <div class="relative" @mouseenter="toursOpen = true" @mouseleave="toursOpen = false">
                 <button type="button" class="inline-flex items-center gap-2 hover:text-emerald-700" @click="toursOpen = !toursOpen">
-                    Paket Trip
+                    {{ $nav['menu_trips'] }}
                     <svg class="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
                     </svg>
                 </button>
 
                 <div x-cloak x-show="toursOpen" x-transition class="absolute left-0 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                    <a href="{{ $toursUrl }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Semua Paket</a>
+                    <a href="{{ $toursUrl }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['menu_all_trips'] }}</a>
 
                     @if (($activeTourCategories ?? collect())->isNotEmpty())
                         <div class="border-t border-slate-100"></div>
@@ -55,14 +64,14 @@
                             <a href="{{ $toursUrl }}?category={{ $category->slug }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $category->name }}</a>
                         @endforeach
                     @else
-                        <div class="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">Kategori belum ada. Tambahkan di Admin.</div>
+                        <div class="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">{{ $nav['menu_category_empty'] }}</div>
                     @endif
                 </div>
             </div>
 
-            <a href="{{ route('rental.mobil', ['lang' => $localeCode]) }}" class="hover:text-emerald-700">Rental Mobil</a>
-            <a href="{{ route('blog.index', ['lang' => $localeCode]) }}" class="hover:text-emerald-700">Komodo Insider</a>
-            <a href="{{ $contactUrl }}" class="hover:text-emerald-700">Kontak</a>
+            <a href="{{ route('rental.mobil', ['lang' => $localeCode]) }}" class="hover:text-emerald-700">{{ $nav['menu_rental'] }}</a>
+            <a href="{{ route('blog.index', ['lang' => $localeCode]) }}" class="hover:text-emerald-700">{{ $nav['menu_blog'] }}</a>
+            <a href="{{ $contactPageUrl }}" class="hover:text-emerald-700">{{ $nav['menu_contact'] }}</a>
         </div>
 
         <div class="hidden items-center gap-3 md:flex">
@@ -130,51 +139,51 @@
 
                     <div x-cloak x-show="userOpen" x-transition class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                         @if (auth()->user()->is_admin)
-                            <a href="{{ route('admin.dashboard') }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Admin Panel</a>
+                            <a href="{{ route('admin.dashboard') }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['admin_panel'] }}</a>
                         @endif
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Profil</a>
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['profile'] }}</a>
                         <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-3 text-left text-sm text-rose-600 hover:bg-rose-50">Logout</button>
+                            <button type="submit" class="w-full px-4 py-3 text-left text-sm text-rose-600 hover:bg-rose-50">{{ $nav['logout'] }}</button>
                         </form>
                     </div>
                 </div>
             @else
-                <a href="{{ route('login') }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800 hover:text-emerald-700">Login</a>
+                <a href="{{ route('login') }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800 hover:text-emerald-700">{{ $nav['login'] }}</a>
             @endauth
 
-            <a href="{{ $contactUrl }}" class="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white">Konsultasi Trip</a>
+            <a href="{{ $contactPageUrl }}" class="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white">{{ $nav['cta_consult'] }}</a>
         </div>
 
         <button type="button" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 md:hidden" @click="mobileOpen = !mobileOpen">
-            Menu
+            {{ $nav['menu_button'] }}
         </button>
     </div>
 
     <div x-cloak x-show="mobileOpen" x-transition class="border-t border-emerald-100 bg-white md:hidden">
         <div class="mx-auto max-w-6xl space-y-3 px-6 py-4 text-sm">
-            <a href="{{ $homeUrl }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Beranda</a>
+            <a href="{{ $homeUrl }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['menu_home'] }}</a>
 
             <details class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                <summary class="cursor-pointer list-none font-semibold text-slate-800">Paket Trip</summary>
+                <summary class="cursor-pointer list-none font-semibold text-slate-800">{{ $nav['menu_trips'] }}</summary>
                 <div class="mt-3 space-y-1">
-                    <a href="{{ $toursUrl }}" class="block rounded-xl px-3 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Semua Paket</a>
+                    <a href="{{ $toursUrl }}" class="block rounded-xl px-3 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['menu_all_trips'] }}</a>
                     @if (($activeTourCategories ?? collect())->isNotEmpty())
                         @foreach ($activeTourCategories as $category)
                             <a href="{{ $toursUrl }}?category={{ $category->slug }}" class="block rounded-xl px-3 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $category->name }}</a>
                         @endforeach
                     @else
-                        <div class="px-3 py-2 text-xs text-slate-500">Kategori belum ada.</div>
+                        <div class="px-3 py-2 text-xs text-slate-500">{{ $nav['menu_category_empty'] }}</div>
                     @endif
                 </div>
             </details>
 
-            <a href="{{ route('rental.mobil', ['lang' => $localeCode]) }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Rental Mobil</a>
-            <a href="{{ route('blog.index', ['lang' => $localeCode]) }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Komodo Insider</a>
-            <a href="{{ $contactUrl }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">Kontak</a>
+            <a href="{{ route('rental.mobil', ['lang' => $localeCode]) }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['menu_rental'] }}</a>
+            <a href="{{ route('blog.index', ['lang' => $localeCode]) }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['menu_blog'] }}</a>
+            <a href="{{ $contactPageUrl }}" class="block rounded-2xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">{{ $nav['menu_contact'] }}</a>
 
             <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                <span class="text-xs font-semibold text-slate-600">Mata uang</span>
+                <span class="text-xs font-semibold text-slate-600">{{ $nav['currency_label'] }}</span>
                 <div class="ml-auto flex flex-wrap gap-2">
                     @foreach ($activeCurrencies as $currency)
                         @php $symbol = $currency->symbol ?? ($currencySymbols[$currency->code] ?? $currency->code); @endphp
@@ -184,7 +193,7 @@
             </div>
 
             <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                <span class="text-xs font-semibold text-slate-600">Bahasa</span>
+                <span class="text-xs font-semibold text-slate-600">{{ $nav['language_label'] }}</span>
                 <div class="ml-auto flex flex-wrap gap-2">
                     @foreach ($activeLanguages as $language)
                         @php $icon = $langIcons[$language->code] ?? '🌐'; @endphp
@@ -196,18 +205,18 @@
             <div class="flex flex-wrap gap-2">
                 @auth
                     @if (auth()->user()->is_admin)
-                        <a href="{{ route('admin.dashboard') }}" class="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800">Admin Panel</a>
+                        <a href="{{ route('admin.dashboard') }}" class="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800">{{ $nav['admin_panel'] }}</a>
                     @endif
-                    <a href="{{ route('profile.edit') }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800">Profil</a>
+                    <a href="{{ route('profile.edit') }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800">{{ $nav['profile'] }}</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-rose-600">Logout</button>
+                        <button type="submit" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-rose-600">{{ $nav['logout'] }}</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800">Login</a>
+                    <a href="{{ route('login') }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800">{{ $nav['login'] }}</a>
                 @endauth
 
-                <a href="{{ $contactUrl }}" class="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white">Konsultasi Trip</a>
+                <a href="{{ $contactPageUrl }}" class="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white">{{ $nav['cta_consult'] }}</a>
             </div>
         </div>
     </div>

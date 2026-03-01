@@ -10,8 +10,9 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('rates:update', function (ExchangeRateService $service): void {
-    $service->updateRates(['USD', 'EUR', 'CNY', 'RUB', 'MYR']);
-    $this->info('Exchange rates updated.');
+    // Update all active currencies
+    $service->updateRates(); 
+    $this->info('Exchange rates updated successfully.');
 })->purpose('Update currency exchange rates daily');
 
 app(Schedule::class)->command('rates:update')->daily();

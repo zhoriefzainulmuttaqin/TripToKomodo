@@ -28,6 +28,7 @@
         <table class="w-full text-left text-sm">
             <thead class="bg-emerald-50 text-xs uppercase tracking-[0.2em] text-emerald-700">
                 <tr>
+                    <th class="px-5 py-4">Gambar</th>
                     <th class="px-5 py-4">Nama</th>
                     <th class="px-5 py-4">Kategori</th>
                     <th class="px-5 py-4">Koordinat</th>
@@ -39,12 +40,29 @@
                 @forelse ($destinations as $destination)
                     <tr class="border-t border-slate-100">
                         <td class="px-5 py-4">
-                            <p class="font-semibold text-slate-900">{{ $destination->name }}</p>
-                            @if (!empty($destination->distance))
-                                <p class="mt-1 text-xs text-slate-500">{{ $destination->distance }}</p>
+                            @if (!empty($destination->image))
+                                <img src="{{ asset('storage/' . $destination->image) }}" alt="{{ $destination->display_name ?? $destination->name }}" class="h-16 w-16 rounded-xl object-cover">
+
+                            @else
+                                <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-100">
+                                    <svg class="h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
                             @endif
                         </td>
-                        <td class="px-5 py-4 text-slate-700">{{ $destination->category ?? '-' }}</td>
+                        <td class="px-5 py-4">
+                            <p class="font-semibold text-slate-900">{{ $destination->display_name ?? $destination->name }}</p>
+                            @if (!empty($destination->display_distance ?? $destination->distance))
+                                <p class="mt-1 text-xs text-slate-500">{{ $destination->display_distance ?? $destination->distance }}</p>
+                            @endif
+                            @if (!empty($destination->display_description ?? $destination->description))
+                                <p class="mt-1 max-w-xs truncate text-xs text-slate-400">{{ $destination->display_description ?? $destination->description }}</p>
+                            @endif
+
+                        </td>
+                        <td class="px-5 py-4 text-slate-700">{{ $destination->display_category ?? $destination->category ?? '-' }}</td>
+
                         <td class="px-5 py-4 text-slate-700">{{ $destination->lat ?? '-' }}, {{ $destination->lng ?? '-' }}</td>
                         <td class="px-5 py-4">
                             @if (property_exists($destination, 'is_active') && $destination->is_active)
@@ -68,7 +86,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-5 py-10 text-center text-slate-600">Belum ada data destinasi.</td>
+                        <td colspan="6" class="px-5 py-10 text-center text-slate-600">Belum ada data destinasi.</td>
                     </tr>
                 @endforelse
             </tbody>
