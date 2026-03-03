@@ -10,6 +10,7 @@
 
 @section('title', $t['contact']['title'] ?? 'Kontak Kami')
 @section('meta_description', $t['contact']['desc'] ?? 'Hubungi tim TriptoKomodo untuk konsultasi perjalanan Labuan Bajo terbaik.')
+@section('meta_keywords', __('pages.contact.page.keywords'))
 
 @section('content')
 

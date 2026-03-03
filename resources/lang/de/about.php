@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => 'Über uns | TriptoKomodo',
         'meta' => 'Lernen Sie TriptoKomodo kennen, den verlässlichen Anbieter seit 2015.',
+        'keywords' => 'über triptokomodo, labuan bajo anbieter, komodo tour operator, tours seit 2015',
     ],
     'hero' => [
         'tag' => 'Über uns',

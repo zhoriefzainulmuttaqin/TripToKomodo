@@ -28,6 +28,100 @@
         $aboutPageUrl = route('about', ['lang' => $localeCode]);
         $toursUrl = route('tours.index', ['lang' => $localeCode]);
 
+        // URL switch bahasa: usahakan tetap di halaman yang sama dan mengikuti slug terjemahan bila ada.
+        $currentRoute = request()->route();
+        $currentRouteName = $currentRoute?->getName();
+        $currentParams = is_array($currentRoute?->parameters()) ? $currentRoute->parameters() : [];
+        $currentQuery = request()->query();
+        $queryString = !empty($currentQuery) ? ('?' . http_build_query($currentQuery)) : '';
+
+        $langUrl = function (string $targetLang) use ($currentRouteName, $currentParams, $queryString) {
+            // default fallback
+            $fallback = route('home', ['lang' => $targetLang]);
+
+            // Special case: tour detail harus pakai slug sesuai bahasa target.
+            if ($currentRouteName === 'tours.show') {
+                $slug = $currentParams['slug'] ?? '';
+                if (is_string($slug) && $slug !== '') {
+                    try {
+                        $currentTranslation = \App\Models\TourPackageTranslation::query()
+                            ->where('slug', $slug)
+                            ->where('is_active', true)
+                            ->first();
+
+                        if ($currentTranslation) {
+                            $targetTranslation = \App\Models\TourPackageTranslation::query()
+                                ->where('tour_package_id', $currentTranslation->tour_package_id)
+                                ->where('language_code', $targetLang)
+                                ->where('is_active', true)
+                                ->first();
+
+                            if ($targetTranslation) {
+                                return route('tours.show', [
+                                    'lang' => $targetLang,
+                                    'slug' => $targetTranslation->slug,
+                                ]) . $queryString;
+                            }
+
+                            return route('tours.index', ['lang' => $targetLang]) . $queryString;
+                        }
+                    } catch (\Throwable) {
+                        return route('tours.index', ['lang' => $targetLang]) . $queryString;
+                    }
+                }
+
+                return route('tours.index', ['lang' => $targetLang]) . $queryString;
+            }
+
+            // Special case: rental mobil detail harus pakai slug sesuai bahasa target.
+            if ($currentRouteName === 'rental.mobil.show') {
+                $slug = $currentParams['slug'] ?? '';
+                if (is_string($slug) && $slug !== '') {
+                    try {
+                        $currentTranslation = \App\Models\RentalCarTranslation::query()
+                            ->where('slug', $slug)
+                            ->where('is_active', true)
+                            ->first();
+
+                        if ($currentTranslation) {
+                            $targetTranslation = \App\Models\RentalCarTranslation::query()
+                                ->where('rental_car_id', $currentTranslation->rental_car_id)
+                                ->where('language_code', $targetLang)
+                                ->where('is_active', true)
+                                ->first();
+
+                            if ($targetTranslation) {
+                                return route('rental.mobil.show', [
+                                    'lang' => $targetLang,
+                                    'slug' => $targetTranslation->slug,
+                                ]) . $queryString;
+                            }
+
+                            return route('rental.mobil', ['lang' => $targetLang]) . $queryString;
+                        }
+                    } catch (\Throwable) {
+                        return route('rental.mobil', ['lang' => $targetLang]) . $queryString;
+                    }
+                }
+
+                return route('rental.mobil', ['lang' => $targetLang]) . $queryString;
+            }
+
+            // Generic: coba route yang sama dengan mengganti param lang.
+            try {
+                if (!empty($currentRouteName)) {
+                    $params = $currentParams;
+                    $params['lang'] = $targetLang;
+
+                    return route($currentRouteName, $params) . $queryString;
+                }
+            } catch (\Throwable) {
+                // ignore
+            }
+
+            return $fallback;
+        };
+
         $contactEmail = $contactSettings['email'] ?? 'hello@triptokomodo.com';
         $contactPhone = $contactSettings['phone'] ?? '+62 812 0000 0000';
         $contactWhatsapp = $contactSettings['whatsapp'] ?? $contactPhone;
@@ -38,10 +132,18 @@
 
     <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="{{ $homeUrl }}" class="flex items-center gap-3">
-            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-semibold">LB</span>
+            @if (!empty($siteLogoUrl))
+                <span class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white border border-emerald-100">
+                    <img src="{{ $siteLogoUrl }}" alt="{{ $siteName ?? $nav['brand_name'] }}" class="h-full w-full object-contain" loading="eager" decoding="async" />
+                </span>
+            @else
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-semibold">{{ $siteInitials ?? 'TK' }}</span>
+            @endif
             <div>
-                <p class="text-sm uppercase tracking-[0.3em] text-emerald-600">{{ $nav['brand_tagline'] }}</p>
-                <p class="text-base font-semibold text-slate-900">{{ $nav['brand_name'] }}</p>
+                @if (!empty($siteTagline))
+                    <p class="text-sm uppercase tracking-[0.3em] text-emerald-600">{{ $siteTagline }}</p>
+                @endif
+                <p class="text-base font-semibold text-slate-900">{{ $siteName ?? $nav['brand_name'] }}</p>
             </div>
         </a>
 
@@ -50,9 +152,7 @@
             <div class="relative" @mouseenter="toursOpen = true" @mouseleave="toursOpen = false">
                 <button type="button" class="inline-flex items-center gap-2 hover:text-emerald-700" @click="toursOpen = !toursOpen">
                     {{ $nav['menu_trips'] }}
-                    <svg class="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-                    </svg>
+                    <span class="material-symbols-outlined text-[18px] leading-none text-slate-500 transition-transform" :class="{ 'rotate-180 text-emerald-500': toursOpen }" aria-hidden="true">expand_more</span>
                 </button>
 
                 <div x-cloak x-show="toursOpen" x-transition class="absolute left-0 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -78,14 +178,9 @@
             <div class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1">
                 <div class="relative" @click.outside="curOpen = false">
                     <button type="button" @click="curOpen = !curOpen" class="inline-flex items-center gap-2 bg-transparent px-2 py-1 text-xs font-semibold text-slate-800">
-                        <svg class="h-4 w-4 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                            <path d="M12 2v20"></path>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
+                        <span class="material-symbols-outlined text-[18px] leading-none text-emerald-700" aria-hidden="true">payments</span>
                         <span>{{ $curSymbol }} {{ $curCode }}</span>
-                        <svg class="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-                        </svg>
+                        <span class="material-symbols-outlined text-[18px] leading-none text-slate-500 transition-transform" :class="{ 'rotate-180 text-emerald-500': curOpen }" aria-hidden="true">expand_more</span>
                     </button>
 
                     <div x-cloak x-show="curOpen" x-transition class="absolute left-0 mt-2 w-40 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -107,15 +202,13 @@
                     <button type="button" @click="langOpen = !langOpen" class="inline-flex items-center gap-2 bg-transparent px-2 py-1 text-xs font-semibold text-slate-800">
                         <span class="text-base leading-none">{{ $langIcon }}</span>
                         <span>{{ $langLabel }}</span>
-                        <svg class="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-                        </svg>
+                        <span class="material-symbols-outlined text-[18px] leading-none text-slate-500 transition-transform" :class="{ 'rotate-180 text-emerald-500': langOpen }" aria-hidden="true">expand_more</span>
                     </button>
 
                     <div x-cloak x-show="langOpen" x-transition class="absolute right-0 mt-2 w-44 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                         @foreach ($activeLanguages as $language)
                             @php $icon = $langIcons[$language->code] ?? '🌐'; @endphp
-                            <a href="{{ url('/lang') }}/{{ $language->code }}" class="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">
+                            <a href="{{ $langUrl($language->code) }}" class="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800">
                                 <span class="text-base leading-none">{{ $icon }}</span>
                                 <span class="font-semibold">{{ strtoupper($language->code) }}</span>
                                 <span class="text-slate-500">{{ $language->name ?? '' }}</span>
@@ -132,9 +225,7 @@
                             {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                         </span>
                         <span class="max-w-[120px] truncate">{{ auth()->user()->name }}</span>
-                        <svg class="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-                        </svg>
+                        <span class="material-symbols-outlined text-[18px] leading-none text-slate-500 transition-transform" :class="{ 'rotate-180 text-emerald-500': userOpen }" aria-hidden="true">expand_more</span>
                     </button>
 
                     <div x-cloak x-show="userOpen" x-transition class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -197,7 +288,7 @@
                 <div class="ml-auto flex flex-wrap gap-2">
                     @foreach ($activeLanguages as $language)
                         @php $icon = $langIcons[$language->code] ?? '🌐'; @endphp
-                        <a href="{{ url('/lang') }}/{{ $language->code }}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700 hover:text-emerald-700">{{ $icon }} {{ strtoupper($language->code) }}</a>
+                        <a href="{{ $langUrl($language->code) }}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700 hover:text-emerald-700">{{ $icon }} {{ strtoupper($language->code) }}</a>
                     @endforeach
                 </div>
             </div>

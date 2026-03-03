@@ -1,2 +1,19 @@
 User-agent: *
-Disallow:
+
+# Jangan index area admin & auth
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Endpoint utilitas
+Disallow: /lang/
+Disallow: /currency/
+
+# Endpoint API internal (multi-bahasa)
+Disallow: /*/api/
+
+Sitemap: /sitemap.xml

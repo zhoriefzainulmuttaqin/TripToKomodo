@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPost;
 use App\Models\Destination;
 use App\Models\Faq;
 use App\Models\TourCategory;
 use App\Models\TourPackage;
 use App\Models\WebSetting;
 use App\Services\LabuanBajoWeatherService;
-
+use App\Services\PriceCalculator;
 
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(): View
+    public function index(PriceCalculator $calculator): View
     {
         $locale = app()->getLocale();
         $fallbackLocale = (string) config('app.fallback_locale', 'en');
@@ -25,12 +26,20 @@ class HomeController extends Controller
 
                 ->where('status', 'published')
                 ->with([
+                    'category',
                     'translations' => fn ($query) => $query->whereIn('language_code', $translationLocales)->where('is_active', true),
                     'images',
                 ])
                 ->orderByDesc('is_featured')
                 ->limit(6)
                 ->get();
+
+            $currencyCode = session('currency', 'IDR');
+            $packages->transform(function ($package) use ($calculator, $currencyCode) {
+                $package->pricing = $calculator->calculateSellingPrice($package, null, $currencyCode);
+
+                return $package;
+            });
         } catch (\Throwable) {
             $packages = collect();
         }
@@ -55,9 +64,30 @@ class HomeController extends Controller
                         'lng' => $destination->lng,
                     ];
                 });
-        } catch (\Throwable) {
-            $destinations = collect();
+        } catch (\Throwable $e) {
+            // Jangan "menelan" error: log supaya cepat ketahuan kalau schema/relasi belum ada.
+            report($e);
+
+            // Fallback: tetap tampilkan map marker dari field dasar (tanpa translasi)
+            try {
+                $destinations = Destination::query()
+                    ->orderBy('name')
+                    ->get()
+                    ->map(fn ($destination) => (object) [
+                        'name' => $destination->name,
+                        'image' => $destination->image,
+                        'description' => $destination->description,
+                        'category' => $destination->category,
+                        'distance' => $destination->distance,
+                        'lat' => $destination->lat,
+                        'lng' => $destination->lng,
+                    ]);
+            } catch (\Throwable $e2) {
+                report($e2);
+                $destinations = collect();
+            }
         }
+
 
 
         // Untuk Trip Finder form
@@ -83,9 +113,26 @@ class HomeController extends Controller
                         'name' => $translation?->name ?? $destination->name,
                     ];
                 });
-        } catch (\Throwable) {
-            $filterDestinations = collect();
+        } catch (\Throwable $e) {
+            report($e);
+
+            // Fallback tanpa translasi/soft delete (supaya Trip Finder tetap terisi)
+            try {
+                $filterDestinations = Destination::query()
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('name')
+                    ->get(['id', 'name'])
+                    ->map(fn ($destination) => (object) [
+                        'id' => $destination->id,
+                        'name' => $destination->name,
+                    ]);
+            } catch (\Throwable $e2) {
+                report($e2);
+                $filterDestinations = collect();
+            }
         }
+
 
 
         try {
@@ -144,7 +191,31 @@ class HomeController extends Controller
             $faqItems = collect();
         }
 
-        return view('welcome', [
+        $blogPosts = collect();
+        try {
+            $blogPosts = BlogPost::query()
+                ->published()
+                ->where('language_code', $locale)
+                ->orderByDesc('published_at')
+                ->orderByDesc('id')
+                ->limit(3)
+                ->get();
+
+            if ($blogPosts->isEmpty() && $fallbackLocale !== $locale) {
+                $blogPosts = BlogPost::query()
+                    ->published()
+                    ->where('language_code', $fallbackLocale)
+                    ->orderByDesc('published_at')
+                    ->orderByDesc('id')
+                    ->limit(3)
+                    ->get();
+            }
+        } catch (\Throwable) {
+            $blogPosts = collect();
+        }
+
+        return view('home', [
+
             'packages' => $packages,
             'destinations' => $destinations,
             'filterCategories' => $filterCategories,
@@ -153,6 +224,7 @@ class HomeController extends Controller
             'weather' => $weather,
             'heroBackgroundUrl' => $heroBackgroundUrl,
             'faqItems' => $faqItems,
+            'blogPosts' => $blogPosts,
         ]);
     }
 }

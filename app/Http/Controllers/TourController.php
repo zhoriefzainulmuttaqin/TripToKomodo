@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Destination;
+use App\Models\Faq;
+use App\Models\TourCategory;
 use App\Models\TourPackage;
 use App\Models\TourPackageTranslation;
 use App\Services\InternalLinkService;
@@ -15,11 +17,19 @@ use Illuminate\View\View;
 
 class TourController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, PriceCalculator $calculator): View
     {
         $locale = app()->getLocale();
         $selectedCategory = $request->string('category')->toString();
         $selectedDuration = $request->string('duration')->toString(); // format: "{days}-{nights}", contoh "3-2"
+
+        $selectedCategoryName = null;
+        if ($selectedCategory !== '') {
+            $selectedCategoryName = TourCategory::query()
+                ->where('slug', $selectedCategory)
+                ->where('is_active', true)
+                ->value('name');
+        }
 
         // Support both 'destination' (single) and 'destinations' (array) parameters
         $selectedDestinations = [];
@@ -70,6 +80,13 @@ class TourController extends Controller
 
         $packages = $query->paginate(9)->withQueryString();
 
+        $currencyCode = session('currency', 'IDR');
+        $packages->getCollection()->transform(function (TourPackage $package) use ($calculator, $currencyCode) {
+            $package->pricing = $calculator->calculateSellingPrice($package, null, $currencyCode);
+
+            return $package;
+        });
+
         $selectedDestinationNames = [];
         if (!empty($selectedDestinations)) {
             try {
@@ -92,6 +109,7 @@ class TourController extends Controller
         return view('tours.index', [
             'packages' => $packages,
             'selectedCategory' => $selectedCategory,
+            'selectedCategoryName' => $selectedCategoryName,
             'selectedDuration' => $selectedDuration,
             'selectedDestinations' => $selectedDestinations,
             'selectedDestinationNames' => $selectedDestinationNames,
@@ -112,7 +130,8 @@ class TourController extends Controller
             $locale = $lang;
         }
 
-
+        $fallbackLocale = (string) config('app.fallback_locale', 'en');
+        $translationLocales = array_values(array_unique([$locale, $fallbackLocale]));
 
         $translation = TourPackageTranslation::query()
             ->where('language_code', $locale)
@@ -137,7 +156,7 @@ class TourController extends Controller
                 return redirect()->route('tours.show', [
                     'lang' => $translation->language_code,
                     'slug' => $translation->slug,
-                ]);
+                ], 301);
             }
         }
 
@@ -145,12 +164,12 @@ class TourController extends Controller
             ->whereKey($translation->tour_package_id)
             ->with([
                 'images',
-                'faqs',
+                'faqs' => fn ($q) => $q->whereIn('language_code', $translationLocales)->orderBy('sort_order'),
                 'reviews',
                 'translations',
                 'operator',
                 'category',
-                'destinations.translations' => fn ($q) => $q->whereIn('language_code', [$locale, (string) config('app.fallback_locale', 'en')]),
+                'destinations.translations' => fn ($q) => $q->whereIn('language_code', $translationLocales),
 
                 'availabilities' => fn ($q) => $q->where('date', '>=', today())->orderBy('date')->limit(10),
             ])
@@ -164,12 +183,36 @@ class TourController extends Controller
         $pricing = $calculator->calculateSellingPrice($package, null, session('currency', 'IDR'));
         $description = $internalLinkService->inject($translation->description ?? '', $locale);
 
+        // FAQ: utamakan FAQ khusus paket (tour_faqs) sesuai bahasa, fallback ke bahasa default.
+        $packageFaqItems = $package->faqs->where('language_code', $locale);
+        if ($packageFaqItems->isEmpty()) {
+            $packageFaqItems = $package->faqs->where('language_code', $fallbackLocale);
+        }
+        $packageFaqItems = $packageFaqItems->sortBy('sort_order')->values();
+
+        // Jika paket belum punya FAQ, fallback ke FAQ global (admin -> FAQs).
+        $globalFaqItems = Faq::query()
+            ->where('is_active', true)
+            ->where('language_code', $locale)
+            ->orderBy('sort_order')
+            ->get();
+
+        if ($globalFaqItems->isEmpty() && $fallbackLocale !== $locale) {
+            $globalFaqItems = Faq::query()
+                ->where('is_active', true)
+                ->where('language_code', $fallbackLocale)
+                ->orderBy('sort_order')
+                ->get();
+        }
+
         return view('tours.show', [
             'package' => $package,
             'translation' => $translation,
             'descriptionHtml' => $description,
             'pricing' => $pricing,
             'seo' => $seo,
+            'packageFaqItems' => $packageFaqItems,
+            'globalFaqItems' => $globalFaqItems,
         ]);
     }
 }

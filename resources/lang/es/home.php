@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => 'Paquetes de Tour Labuan Bajo y Komodo | TriptoKomodo',
         'meta' => 'Paquetes de tour Labuan Bajo y Komodo: barcos premium, itinerarios flexibles, guías locales y precios transparentes. Reserva rápida con multimoneda y multilenguaje.',
+        'keywords' => 'paquetes labuan bajo, tour komodo, viaje komodo, tour privado labuan bajo, barco komodo, parque nacional komodo',
     ],
     'hero' => [
         'tag' => 'Paquetes de Tour Labuan Bajo y Komodo',

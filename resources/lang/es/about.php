@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => 'Sobre nosotros | TriptoKomodo',
         'meta' => 'Conoce TriptoKomodo, operador confiable de Labuan Bajo desde 2015.',
+        'keywords' => 'sobre triptokomodo, operador labuan bajo, operador komodo, tours desde 2015',
     ],
     'hero' => [
         'tag' => 'Sobre nosotros',

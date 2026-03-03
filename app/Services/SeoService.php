@@ -33,7 +33,7 @@ class SeoService
 
     public function tourStructuredData(TourPackage $package, array $data): array
     {
-        return [
+        $schema = [
             '@context' => 'https://schema.org',
             '@type' => 'TouristTrip',
             'name' => $data['title'] ?? $package->code,
@@ -47,6 +47,31 @@ class SeoService
                 'url' => $data['url'] ?? url('/'),
             ],
         ];
+
+        if (!empty($data['image'])) {
+            $schema['image'] = $data['image'];
+        }
+
+        if (!empty($data['provider_name'])) {
+            $schema['provider'] = [
+                '@type' => 'Organization',
+                'name' => (string) $data['provider_name'],
+            ];
+        }
+
+        if (!empty($data['rating']) && is_array($data['rating'])) {
+            $value = $data['rating']['value'] ?? null;
+            $count = $data['rating']['count'] ?? null;
+            if ($value !== null && $count !== null) {
+                $schema['aggregateRating'] = [
+                    '@type' => 'AggregateRating',
+                    'ratingValue' => $value,
+                    'reviewCount' => $count,
+                ];
+            }
+        }
+
+        return $schema;
     }
 
     public function faqSchema(array $faqs): array

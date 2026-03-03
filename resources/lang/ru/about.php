@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => 'О нас | TriptoKomodo',
         'meta' => 'Познакомьтесь с TriptoKomodo — надежным оператором с 2015 года.',
+        'keywords' => 'о TriptoKomodo, оператор лабуан баджо, оператор комодо, туры с 2015',
     ],
     'hero' => [
         'tag' => 'О нас',

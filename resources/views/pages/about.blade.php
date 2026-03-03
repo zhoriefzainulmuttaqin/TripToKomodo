@@ -10,6 +10,8 @@
 
 @section('title', $about['page']['title'] ?? 'Tentang Kami')
 @section('meta_description', $about['page']['meta'] ?? 'Kenali tim dan pengalaman TriptoKomodo sebagai operator tur Labuan Bajo.')
+@section('meta_keywords', $about['page']['keywords'] ?? '')
+@section('og_image', !empty($about['hero']['image'] ?? null) ? ($about['hero']['image']) : asset('favicon.ico'))
 
 @section('content')
     <section class="mx-auto max-w-6xl px-6 py-16">

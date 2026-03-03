@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => '关于我们 | TriptoKomodo',
         'meta' => '了解 TriptoKomodo，自 2015 年以来的拉布安巴焦可靠运营商。',
+        'keywords' => '关于 TriptoKomodo, 拉布安巴焦 运营商, 科莫多 旅行 运营, 2015',
     ],
     'hero' => [
         'tag' => '关于我们',

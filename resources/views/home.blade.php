@@ -13,6 +13,8 @@
 
 @section('title', $t['page']['title'])
 @section('meta_description', $t['page']['meta'])
+@section('meta_keywords', $t['page']['keywords'] ?? '')
+@section('og_image', !empty($heroBackgroundUrl) ? $heroBackgroundUrl : asset('favicon.ico'))
 
 @section('hreflang')
     @foreach ($activeLanguages as $language)
@@ -23,7 +25,7 @@
 @section('content')
     @push('schema')
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
     @endpush
     @push('styles')
         <style>
@@ -106,7 +108,14 @@
 
     <section class="relative overflow-hidden bg-white">
         @if (!empty($heroBackgroundUrl))
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('{{ $heroBackgroundUrl }}');"></div>
+            <img
+                src="{{ $heroBackgroundUrl }}"
+                alt="Hero TriptoKomodo"
+                class="absolute inset-0 h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+            />
             <div class="absolute inset-0 bg-slate-900/35"></div>
         @endif
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_65%)]"></div>
@@ -168,9 +177,7 @@
                             <div class="relative mt-2" @click.outside="durOpen = false">
                                 <button type="button" @click="durOpen = !durOpen" class="flex w-full items-center justify-between rounded-xl border-0 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none ring-1 ring-slate-200 transition-all duration-300 hover:bg-white hover:ring-emerald-300 focus:ring-2 focus:ring-emerald-500">
                                     <span x-text="durationLabel"></span>
-                                    <svg :class="{ 'rotate-180 text-emerald-500': durOpen }" class="h-4 w-4 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-[18px] leading-none text-slate-400 transition-transform duration-300" :class="{ 'rotate-180 text-emerald-500': durOpen }" aria-hidden="true">expand_more</span>
                                 </button>
                                 <input type="hidden" name="duration" :value="duration">
                                 <div x-cloak x-show="durOpen" x-transition class="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
@@ -188,9 +195,7 @@
                             <div class="relative mt-2" @click.outside="catOpen = false">
                                 <button type="button" @click="catOpen = !catOpen" class="flex w-full items-center justify-between rounded-xl border-0 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none ring-1 ring-slate-200 transition-all duration-300 hover:bg-white hover:ring-emerald-300 focus:ring-2 focus:ring-emerald-500">
                                     <span x-text="categoryLabel"></span>
-                                    <svg :class="{ 'rotate-180 text-emerald-500': catOpen }" class="h-4 w-4 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-[18px] leading-none text-slate-400 transition-transform duration-300" :class="{ 'rotate-180 text-emerald-500': catOpen }" aria-hidden="true">expand_more</span>
                                 </button>
                                 <input type="hidden" name="category" :value="category">
                                 <div x-cloak x-show="catOpen" x-transition class="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
@@ -208,9 +213,7 @@
                             <div class="relative mt-2" @click.outside="destOpen = false">
                                 <button type="button" @click="destOpen = !destOpen" class="flex w-full items-center justify-between rounded-xl border-0 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none ring-1 ring-slate-200 transition-all duration-300 hover:bg-white hover:ring-emerald-300 focus:ring-2 focus:ring-emerald-500">
                                     <span x-text="destinationLabel"></span>
-                                    <svg :class="{ 'rotate-180 text-emerald-500': destOpen }" class="h-4 w-4 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-[18px] leading-none text-slate-400 transition-transform duration-300" :class="{ 'rotate-180 text-emerald-500': destOpen }" aria-hidden="true">expand_more</span>
                                 </button>
                                 <input type="hidden" name="destination" :value="destination">
                                 <div x-cloak x-show="destOpen" x-transition class="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
@@ -227,18 +230,14 @@
                             <button type="submit" class="group relative w-full overflow-hidden rounded-full bg-emerald-600 px-5 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-emerald-600/30 transition-all duration-300 hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-600/40 hover:-translate-y-0.5 active:translate-y-0">
                                 <span class="relative z-10 flex items-center justify-center gap-2">
                                     {{ $t['trip_finder']['submit'] }}
-                                    <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-[18px] leading-none transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">arrow_forward</span>
                                 </span>
                             </button>
 
                             <a href="#contact" class="group relative block w-full overflow-hidden rounded-full border border-emerald-200 bg-white px-5 py-3 text-center text-sm font-semibold text-emerald-700 shadow-sm transition-all duration-300 hover:border-emerald-300 hover:bg-emerald-50/80 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
                                 <span class="flex items-center justify-center gap-2">
                                     {{ $t['trip_finder']['consult'] }}
-                                    <svg class="h-4 w-4 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-[18px] leading-none transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" aria-hidden="true">chat_bubble</span>
                                 </span>
                             </a>
                         </div>
@@ -367,76 +366,98 @@
 
                 if (destinations.length > 0) {
                     const markers = L.featureGroup();
+                    let validCount = 0;
+
+                    const escapeHtml = (str) => String(str)
+                        .replaceAll('&', '&amp;')
+                        .replaceAll('<', '&lt;')
+                        .replaceAll('>', '&gt;')
+                        .replaceAll('"', '&quot;')
+                        .replaceAll("'", '&#039;');
 
                     destinations.forEach((destination) => {
-                        const rawLat = (destination.lat ?? '').toString().replace(',', '.');
-                        const rawLng = (destination.lng ?? '').toString().replace(',', '.');
+                        const rawLat = String(destination?.lat ?? '').trim().replace(',', '.');
+                        const rawLng = String(destination?.lng ?? '').trim().replace(',', '.');
                         const lat = parseFloat(rawLat);
                         const lng = parseFloat(rawLng);
 
                         // Validate coordinates
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            // Create point marker
-                            const marker = L.circleMarker([lat, lng], {
-                                radius: 8,
-                                color: '#ffffff',
-                                weight: 2,
-                                fillColor: '#10b981', // Emerald-500
-                                fillOpacity: 1,
-                            });
-
-                            // Popup Content
-                            let popupHtml = `<div class="min-w-[200px] max-w-[240px]">`;
-
-                            if (destination.image) {
-                                popupHtml += `<div class="mb-3 h-32 w-full overflow-hidden rounded-lg bg-slate-100">
-                                    <img src="/storage/${destination.image}" alt="${destination.name}" class="h-full w-full object-cover">
-                                </div>`;
-                            }
-
-                            popupHtml += `<div class="flex items-start justify-between gap-2">
-                                <h3 class="font-bold text-slate-900 text-sm leading-tight">${destination.name}</h3>
-                                ${destination.category ? `<span class="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 border border-emerald-100">${destination.category}</span>` : ''}
-                            </div>`;
-
-                            if (destination.description) {
-                                const desc = destination.description.length > 100
-                                    ? destination.description.substring(0, 100) + '...'
-                                    : destination.description;
-                                popupHtml += `<p class="mt-2 text-xs text-slate-600 leading-relaxed">${desc}</p>`;
-                            }
-
-                            if (destination.distance) {
-                                popupHtml += `<div class="mt-2 flex items-center gap-1 text-[10px] text-slate-400">
-                                    <span>📍</span> ${destination.distance}
-                                </div>`;
-                            }
-
-                            popupHtml += `</div>`;
-
-                            marker.bindPopup(popupHtml, {
-                                closeButton: false,
-                                className: 'destination-popup',
-                                minWidth: 220
-                            });
-
-                            // Hover effects
-                            marker.on('mouseover', function() {
-                                this.setStyle({ radius: 10, fillColor: '#059669' }); // Darker on hover
-                                this.openPopup();
-                            });
-
-                            // Optional: Close popup on mouseout? User requested "klik muncul", so click is better.
-                            // But maybe we keep it persistent on click.
-
-                            marker.addTo(markers);
+                        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                            return;
                         }
+                        // Skip (0,0) karena biasanya data belum diisi tapi dianggap valid oleh parseFloat
+                        if (lat === 0 && lng === 0) {
+                            return;
+                        }
+
+                        validCount += 1;
+
+                        const name = String(destination?.name ?? '');
+                        const category = String(destination?.category ?? '');
+                        const distance = String(destination?.distance ?? '');
+                        const descriptionText = String(destination?.description ?? '');
+                        const imagePath = destination?.image ? String(destination.image) : '';
+
+                        // Create point marker
+                        const marker = L.circleMarker([lat, lng], {
+                            radius: 8,
+                            color: '#ffffff',
+                            weight: 2,
+                            fillColor: '#10b981', // Emerald-500
+                            fillOpacity: 1,
+                        });
+
+                        // Popup Content (hindari error jika field bukan string)
+                        let popupHtml = `<div class="min-w-[200px] max-w-[240px]">`;
+
+                        if (imagePath) {
+                            popupHtml += `<div class="mb-3 h-32 w-full overflow-hidden rounded-lg bg-slate-100">
+                                <img src="/storage/${escapeHtml(imagePath)}" alt="${escapeHtml(name)}" class="h-full w-full object-cover">
+                            </div>`;
+                        }
+
+                        popupHtml += `<div class="flex items-start justify-between gap-2">
+                            <h3 class="font-bold text-slate-900 text-sm leading-tight">${escapeHtml(name)}</h3>
+                            ${category ? `<span class="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 border border-emerald-100">${escapeHtml(category)}</span>` : ''}
+                        </div>`;
+
+                        if (descriptionText) {
+                            const safeDesc = descriptionText.length > 120
+                                ? descriptionText.substring(0, 120) + '...'
+                                : descriptionText;
+                            popupHtml += `<p class="mt-2 text-xs text-slate-600 leading-relaxed">${escapeHtml(safeDesc)}</p>`;
+                        }
+
+                        if (distance) {
+                            popupHtml += `<div class="mt-2 flex items-center gap-1 text-[10px] text-slate-400">
+                                <span class="material-symbols-outlined text-[14px] leading-none" aria-hidden="true">location_on</span>
+                                <span>${escapeHtml(distance)}</span>
+                            </div>`;
+                        }
+
+                        popupHtml += `</div>`;
+
+                        marker.bindPopup(popupHtml, {
+                            closeButton: false,
+                            className: 'destination-popup',
+                            minWidth: 220,
+                        });
+
+                        marker.on('mouseover', function () {
+                            this.setStyle({ radius: 10, fillColor: '#059669' });
+                            this.openPopup();
+                        });
+
+                        markers.addLayer(marker);
                     });
 
-                    // Add markers to map
+                    console.log('Valid destination markers:', validCount);
+
                     if (markers.getLayers().length > 0) {
                         markers.addTo(map);
                         map.fitBounds(markers.getBounds().pad(0.1));
+                    } else {
+                        console.warn('No valid markers. Pastikan destinasi punya lat/lng.');
                     }
                 }
             });
@@ -455,32 +476,7 @@
 
         <div class="mt-10 grid gap-6 md:grid-cols-3">
             @forelse ($packages as $package)
-                @php
-                    $locale = app()->getLocale();
-                    $fallbackLocale = config('app.fallback_locale', 'en');
-
-                    $translation = $package->translations->firstWhere('language_code', $locale)
-                        ?? $package->translations->firstWhere('language_code', $fallbackLocale)
-                        ?? $package->translations->first();
-
-                    $linkLang = $translation?->language_code ?? $locale;
-
-                    $primaryImage = $package->images->firstWhere('is_primary', true);
-                    $image = $primaryImage ?? $package->images->sortBy('sort_order')->first();
-                @endphp
-                <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div class="h-48 rounded-2xl bg-slate-100" style="background-image:url('{{ $image?->url }}'); background-size:cover; background-position:center;"></div>
-                    <div class="mt-4">
-                        <p class="text-xs text-emerald-600">{{ $package->duration_days }} {{ $t['experiences']['duration_unit'] }}</p>
-                        <h3 class="mt-2 text-lg font-semibold text-slate-900">{{ $translation?->title ?? $package->code }}</h3>
-                        <p class="mt-2 text-sm text-slate-600">{{ $translation?->summary ?? $t['experiences']['summary_fallback'] }}</p>
-                        @if (!empty($translation?->slug))
-                            <a href="{{ route('tours.show', ['lang' => $linkLang, 'slug' => $translation->slug]) }}" class="mt-4 inline-flex text-sm text-emerald-700 hover:text-emerald-800">{{ $t['experiences']['detail'] }}</a>
-                        @else
-                            <span class="mt-4 inline-flex text-sm text-slate-400">{{ $t['experiences']['detail_empty'] }}</span>
-                        @endif
-                    </div>
-                </div>
+                <x-tour-package-card :package="$package" />
             @empty
                 <div class="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-600">
                     {{ $t['experiences']['empty'] }}
@@ -790,19 +786,49 @@
             </div>
             <a href="{{ route('blog.index', ['lang' => app()->getLocale()]) }}" class="text-sm text-emerald-700 hover:text-emerald-800">{{ $t['blog']['link'] }}</a>
         </div>
+        @php
+            $homeBlogPosts = ($blogPosts ?? collect());
+        @endphp
+
         <div class="mt-8 grid gap-6 md:grid-cols-3">
-            @foreach ($t['blog']['items'] as $item)
-                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <div class="flex flex-wrap items-center gap-2 text-xs">
-                        <span class="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">{{ $item['category'] }}</span>
-                        <span class="text-slate-400">•</span>
-                        <span class="text-slate-500">{{ $item['date'] }}</span>
+            @if ($homeBlogPosts->isNotEmpty())
+                @foreach ($homeBlogPosts as $post)
+                    @php
+                        $reading = $post->readingTimeMinutesComputed();
+                        $views = (int) ($post->view_count ?? 0);
+                    @endphp
+                    <a href="{{ route('blog.show', ['lang' => $post->language_code, 'slug' => $post->slug]) }}" class="block rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200">
+                        <div class="flex flex-wrap items-center gap-2 text-xs">
+                            <span class="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">{{ $t['blog']['tag'] }}</span>
+                            <span class="text-slate-400">•</span>
+                            <span class="text-slate-500">{{ optional($post->published_at)->format('d M Y') }}</span>
+                        </div>
+                        <h3 class="mt-3 text-lg font-semibold text-slate-900 hover:text-emerald-700">{{ $post->title }}</h3>
+                        <p class="mt-2 text-sm text-slate-600">{{ $post->excerpt ?? '' }}</p>
+                        <p class="mt-4 text-xs text-slate-500">
+                            @if (!empty($reading))
+                                {{ $reading }} min read
+                                <span class="px-1.5">•</span>
+                            @endif
+                            {{ number_format($views) }} views
+                        </p>
+                        <span class="mt-4 inline-flex text-sm text-emerald-700 hover:text-emerald-800">{{ $t['blog']['read_more'] }} →</span>
+                    </a>
+                @endforeach
+            @else
+                @foreach ($t['blog']['items'] as $item)
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div class="flex flex-wrap items-center gap-2 text-xs">
+                            <span class="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">{{ $item['category'] }}</span>
+                            <span class="text-slate-400">•</span>
+                            <span class="text-slate-500">{{ $item['date'] }}</span>
+                        </div>
+                        <h3 class="mt-3 text-lg font-semibold text-slate-900">{{ $item['title'] }}</h3>
+                        <p class="mt-2 text-sm text-slate-600">{{ $item['excerpt'] }}</p>
+                        <a href="{{ route('blog.index', ['lang' => app()->getLocale()]) }}" class="mt-4 inline-flex text-sm text-emerald-700 hover:text-emerald-800">{{ $t['blog']['read_more'] }} →</a>
                     </div>
-                    <h3 class="mt-3 text-lg font-semibold text-slate-900">{{ $item['title'] }}</h3>
-                    <p class="mt-2 text-sm text-slate-600">{{ $item['excerpt'] }}</p>
-                    <a href="{{ route('blog.index', ['lang' => app()->getLocale()]) }}" class="mt-4 inline-flex text-sm text-emerald-700 hover:text-emerald-800">{{ $t['blog']['read_more'] }} →</a>
-                </div>
-            @endforeach
+                @endforeach
+            @endif
         </div>
     </section>
 
@@ -817,7 +843,9 @@
                     <details class="group rounded-2xl border border-slate-200 bg-white px-5 py-4" @if($index === 0) open @endif>
                         <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-slate-900">
                             <span>{{ $item['q'] }}</span>
-                            <span class="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200 text-emerald-700 transition group-open:rotate-180">⌄</span>
+                            <span class="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200 text-emerald-700 transition group-open:rotate-180">
+                                <span class="material-symbols-outlined text-[18px] leading-none" aria-hidden="true">expand_more</span>
+                            </span>
                         </summary>
                         <div class="mt-3 text-sm text-slate-600">
                             {{ $item['a'] }}

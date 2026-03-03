@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => 'Paket Tour Labuan Bajo & Komodo | TriptoKomodo',
         'meta' => 'Paket tour Labuan Bajo & Komodo: kapal premium, itinerary fleksibel, guide lokal, harga transparan. Booking cepat, multi-mata uang, multi-bahasa.',
+        'keywords' => 'paket tour labuan bajo, tour komodo, trip komodo, sewa kapal labuan bajo, open trip komodo, private trip labuan bajo',
     ],
     'hero' => [
         'tag' => 'Paket Tour Labuan Bajo & Komodo',

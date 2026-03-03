@@ -1,8 +1,16 @@
 @extends('layouts.app')
 
+@php
+    $ogImage = $package->images->firstWhere('is_primary', true)?->url
+        ?? $package->images->sortBy('sort_order')->first()?->url
+        ?? asset('favicon.ico');
+@endphp
+
 @section('title', ($translation->meta_title ?? $translation->title) . ' | Labuan Bajo')
 @section('meta_description', $translation->meta_description ?? $translation->summary ?? 'Paket trip Labuan Bajo premium.')
 @section('canonical', url()->current())
+@section('og_type', 'article')
+@section('og_image', $ogImage)
 
 @section('hreflang')
     @php
@@ -32,17 +40,27 @@
 
         $contactUrl = route('home', ['lang' => app()->getLocale()]) . '#contact';
 
-        $faqSchema = $seo->faqSchema($package->faqs->map(fn ($faq) => ['question' => $faq->question, 'answer' => $faq->answer])->toArray());
-        $reviewSchema = $seo->reviewSchema([
+        $faqItems = collect($packageFaqItems ?? []);
+        if ($faqItems->isEmpty()) {
+            $faqItems = collect($globalFaqItems ?? []);
+        }
+
+        $faqSchema = $seo->faqSchema($faqItems->map(fn ($faq) => ['question' => $faq->question, 'answer' => $faq->answer])->toArray());
+
+        $rating = [
             'value' => number_format($package->reviews->avg('rating') ?? 4.8, 1),
             'count' => $package->reviews->count() ?: 12,
-        ]);
+        ];
+
         $tourSchema = $seo->tourStructuredData($package, [
             'title' => $translation->title,
             'description' => $translation->summary,
             'price' => $pricing['selling_price_converted'],
             'currency_code' => $pricing['currency_code'],
             'url' => url()->current(),
+            'image' => $primaryImage?->url,
+            'provider_name' => $package->operator?->name,
+            'rating' => $rating,
         ]);
 
         $breadcrumbSchema = $seo->breadcrumbSchema([
@@ -92,15 +110,21 @@
     @push('schema')
         <script type="application/ld+json">{!! json_encode($tourSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
         <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-        @if ($package->faqs->isNotEmpty())
+        @if ($faqItems->isNotEmpty())
             <script type="application/ld+json">{!! json_encode($faqSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
         @endif
-        <script type="application/ld+json">{!! json_encode($reviewSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
     @endpush
 
     <section class="relative overflow-hidden">
         @if (!empty($primaryImage?->url))
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('{{ $primaryImage->url }}');"></div>
+            <img
+                src="{{ $primaryImage->url }}"
+                alt="{{ $primaryImage->alt_text ?? $translation->title }}"
+                class="absolute inset-0 h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+            />
             <div class="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/55 to-white"></div>
         @else
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.22),transparent_65%)]"></div>
@@ -175,7 +199,7 @@
                     <a href="{{ $contactUrl }}" class="mt-6 block rounded-full bg-emerald-500 px-6 py-3 text-center text-sm font-semibold text-white">Konsultasi & Booking</a>
                     <a href="#availability" class="mt-3 block rounded-full border border-white/25 bg-white/10 px-6 py-3 text-center text-sm font-semibold text-white">Cek Availability</a>
 
-                    <p class="mt-4 text-xs text-white/70">Tip: isi availability dari admin untuk menampilkan tanggal tersedia.</p>
+
                 </aside>
             </div>
         </div>
@@ -281,14 +305,12 @@
                                 <h2 class="text-2xl font-semibold text-slate-900">Destinasi</h2>
                                 <div class="flex items-center gap-2">
                                     <button @click="prev()" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                        </svg>
+                                        <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_left</span>
+
                                     </button>
                                     <button @click="next()" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
+                                        <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_right</span>
+
                                     </button>
                                 </div>
                             </div>
@@ -306,18 +328,14 @@
                                                             @if (!empty($dest['image']))
                                                                 <img src="{{ asset('storage/' . $dest['image']) }}" alt="{{ $dest['name'] }}" class="h-full w-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                                 <div class="hidden h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-slate-200">
-                                                                    <svg class="h-16 w-16 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                                    </svg>
+                                                                    <span class="material-symbols-outlined text-[64px] leading-none text-emerald-300" aria-hidden="true">location_on</span>
                                                                 </div>
+
                                                             @else
                                                                 <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-slate-200">
-                                                                    <svg class="h-16 w-16 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                                    </svg>
+                                                                    <span class="material-symbols-outlined text-[64px] leading-none text-emerald-300" aria-hidden="true">location_on</span>
                                                                 </div>
+
                                                             @endif
                                                             {{-- Category Badge --}}
                                                             @if (!empty($dest['category']))
@@ -335,10 +353,8 @@
                                                             {{-- Maps Link --}}
                                                             @if (!empty($dest['lat']) && !empty($dest['lng']))
                                                                 <a href="https://www.google.com/maps?q={{ $dest['lat'] }},{{ $dest['lng'] }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700">
-                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                                    </svg>
+                                                                    <span class="material-symbols-outlined text-[18px] leading-none" aria-hidden="true">location_on</span>
+
                                                                     Lihat di Maps
                                                                 </a>
                                                             @endif
@@ -394,13 +410,15 @@
                                 {{-- Month Navigation --}}
                                 <div class="mb-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
                                     <button @click="prev()" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-colors">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                        <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_left</span>
+
                                     </button>
                                     
                                     <span class="font-semibold text-slate-900" x-text="monthNames[currentIdx]"></span>
                                     
                                     <button @click="next()" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-colors">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_right</span>
+
                                     </button>
                                 </div>
 
@@ -489,7 +507,7 @@
                         <div class="rounded-3xl border border-slate-200 bg-white p-6">
                             <h2 class="text-xl font-semibold text-slate-900">FAQ</h2>
                             <div class="mt-4 space-y-4 text-sm text-slate-700">
-                                @forelse ($package->faqs as $faq)
+                                @forelse ($faqItems as $faq)
                                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                         <p class="font-semibold text-slate-900 break-words">{{ $faq->question }}</p>
                                         <p class="mt-2 break-words">{{ $faq->answer }}</p>
@@ -549,14 +567,7 @@
                         <a href="#availability" class="mt-3 block rounded-full border border-emerald-200 bg-white px-6 py-3 text-center text-sm font-semibold text-emerald-800">Lihat Availability</a>
                     </div>
 
-                    <div class="rounded-3xl border border-slate-200 bg-white p-6">
-                        <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Tips</p>
-                        <ul class="mt-4 space-y-2 text-sm text-slate-700">
-                            <li>Isi <span class="font-mono">meta_title</span> & <span class="font-mono">meta_description</span> per bahasa untuk SEO.</li>
-                            <li>Upload gambar primary yang tajam (landscape) agar hero lebih meyakinkan.</li>
-                            <li>Tambahkan availability untuk meningkatkan konversi booking.</li>
-                        </ul>
-                    </div>
+
                 </div>
             </div>
         </div>

@@ -5,18 +5,113 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>@yield('title', config('app.name', 'Trip to Komodo'))</title>
-        <meta name="description" content="@yield('meta_description', 'Trip Labuan Bajo: curated trips, premium boats, and unforgettable Komodo experiences.')">
-        <link rel="canonical" href="@yield('canonical', url()->current())">
+        @php
+            $metaTitle = trim((string) $__env->yieldContent('title', $siteName ?? config('app.name', 'Trip to Komodo')));
+            $metaDesc = trim((string) $__env->yieldContent('meta_description', 'Trip Labuan Bajo: curated trips, premium boats, and unforgettable Komodo experiences.'));
+            $metaKeywords = trim((string) $__env->yieldContent('meta_keywords', ''));
+            $canonicalUrl = trim((string) $__env->yieldContent('canonical', url()->current()));
+            $metaRobots = trim((string) $__env->yieldContent('meta_robots', ''));
+            $ogTitle = trim((string) $__env->yieldContent('og_title', $metaTitle));
+            $ogDesc = trim((string) $__env->yieldContent('og_description', $metaDesc));
+            $hasQuery = request()->query() !== [];
+        @endphp
+
+        <title>{{ $metaTitle }}</title>
+        <meta name="description" content="{{ $metaDesc }}">
+        @if ($metaKeywords !== '')
+            <meta name="keywords" content="{{ $metaKeywords }}">
+        @endif
+        <link rel="canonical" href="{{ $canonicalUrl }}">
+
+        @if ($metaRobots !== '')
+            <meta name="robots" content="{{ $metaRobots }}">
+        @elseif ($hasQuery)
+            <meta name="robots" content="noindex,follow">
+        @endif
+
+        <link rel="icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
+
+        {{-- Open Graph / Twitter --}}
+        <meta property="og:title" content="{{ $ogTitle }}">
+        <meta property="og:description" content="{{ $ogDesc }}">
+        <meta property="og:url" content="{{ $canonicalUrl }}">
+        <meta property="og:site_name" content="{{ $siteName ?? config('app.name', 'Trip to Komodo') }}">
+        <meta property="og:type" content="@yield('og_type', 'website')">
+        <meta property="og:image" content="@yield('og_image', asset('favicon.ico'))">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $ogTitle }}">
+        <meta name="twitter:description" content="{{ $ogDesc }}">
+        <meta name="twitter:image" content="@yield('og_image', asset('favicon.ico'))">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+        {{-- UIcons (Flaticon) for brand icons (e.g., WhatsApp) --}}
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.4.0/uicons-brands/css/uicons-brands.css">
+
+        <style>
+            .material-symbols-outlined {
+                font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+                line-height: 1;
+                vertical-align: middle;
+            }
+        </style>
 
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
 
-        @yield('hreflang')
+        @hasSection('hreflang')
+            @yield('hreflang')
+        @else
+            @php
+                $route = request()->route();
+                $routeName = $route?->getName();
+                $routeParams = $route?->parameters() ?? [];
+            @endphp
+            @if (!empty($routeName) && array_key_exists('lang', $routeParams))
+                @foreach ($activeLanguages as $language)
+                    @php
+                        $href = null;
+                        try {
+                            $href = route($routeName, array_merge($routeParams, ['lang' => $language->code]));
+                        } catch (\Throwable) {
+                            $href = null;
+                        }
+                    @endphp
+                    @if (!empty($href))
+                        <link rel="alternate" hreflang="{{ $language->code }}" href="{{ $href }}">
+                    @endif
+                @endforeach
+                <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
+            @endif
+        @endif
+
+        {{-- Site-wide schema --}}
+        @php
+            $siteUrl = url('/');
+            $org = [
+                '@context' => 'https://schema.org',
+                '@type' => 'Organization',
+                'name' => config('app.name', 'Trip to Komodo'),
+                'url' => $siteUrl,
+            ];
+            $webSite = [
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => config('app.name', 'Trip to Komodo'),
+                'url' => $siteUrl,
+            ];
+        @endphp
+        <script type="application/ld+json">{!! json_encode($org, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+        <script type="application/ld+json">{!! json_encode($webSite, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+
         @stack('schema')
         @stack('styles')
     </head>
@@ -50,14 +145,25 @@
 
                 @php
                     $whatsappUrl = $contactSettings['whatsapp_url'] ?? 'https://wa.me/6281200000000';
+                    $whatsappCta = __('home.contact.cta_whatsapp');
                 @endphp
-                <a href="{{ $whatsappUrl }}" class="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-emerald-700" aria-label="WhatsApp Chat">
-                    <svg viewBox="0 0 32 32" class="h-6 w-6" fill="currentColor" aria-hidden="true">
-                        <path d="M19.11 17.21c-.28-.14-1.64-.81-1.9-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.9 1.09-.16.19-.33.21-.6.07-.28-.14-1.18-.43-2.25-1.37-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.12-.12.28-.33.42-.5.14-.16.19-.28.28-.47.1-.19.05-.35-.02-.5-.07-.14-.64-1.54-.88-2.11-.23-.56-.47-.49-.64-.5h-.55c-.19 0-.5.07-.76.35-.26.28-1 1-1 2.43 0 1.43 1.03 2.81 1.18 3 .14.19 2.02 3.08 4.88 4.32.68.3 1.21.48 1.62.61.68.22 1.29.19 1.78.12.54-.08 1.64-.67 1.87-1.32.23-.64.23-1.19.16-1.32-.07-.12-.26-.19-.54-.33z" />
-                        <path d="M16 3C9.38 3 4 8.26 4 14.75c0 2.1.6 4.15 1.74 5.92L4 29l8.63-2.72a12.1 12.1 0 003.37.47c6.62 0 12-5.26 12-11.75C28 8.26 22.62 3 16 3zm0 21.3c-1.1 0-2.19-.17-3.23-.52l-.67-.22-5.1 1.61 1.66-4.87-.44-.76a9.8 9.8 0 01-1.38-4.99c0-5.4 4.5-9.8 10.16-9.8 5.6 0 10.16 4.4 10.16 9.8 0 5.4-4.56 9.8-10.16 9.8z" />
-                    </svg>
+
+                <a
+                    href="{{ $whatsappUrl }}"
+                    class="fixed bottom-6 right-6 z-50 flex items-center gap-3"
+                    aria-label="{{ $whatsappCta }}"
+                >
+                    <span class="max-w-[220px] rounded-full border border-slate-200 bg-white/95 px-4 py-2 text-xs font-semibold text-slate-800 shadow-sm backdrop-blur-sm truncate">
+                        {{ $whatsappCta }}
+                    </span>
+
+                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#1ebe5a]">
+                        <i class="fi fi-brands-whatsapp text-[28px] leading-none" aria-hidden="true"></i>
+                    </span>
                 </a>
             </div>
         @endif
+
+        @stack('scripts')
     </body>
 </html>

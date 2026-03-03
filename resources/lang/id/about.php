@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => 'About Us | TriptoKomodo',
         'meta' => 'Kenali TriptoKomodo sebagai operator tour Labuan Bajo dengan pengalaman sejak 2015.',
+        'keywords' => 'about triptokomodo, operator tour labuan bajo, tour komodo sejak 2015, komodo trip operator',
     ],
     'hero' => [
         'tag' => 'Tentang Kami',

@@ -4,6 +4,7 @@ return [
     'page' => [
         'title' => 'Labuan Bajo & Komodo Tourpakete | TriptoKomodo',
         'meta' => 'Labuan Bajo & Komodo Tourpakete: Premium-Boote, flexible Routen, lokale Guides, transparente Preise. Schnelle Buchung mit Multi-Währung & Multi-Sprache.',
+        'keywords' => 'labuan bajo tourpakete, komodo tour, komodo reise, private tour labuan bajo, komodo boot chartern, komodo nationalpark',
     ],
     'hero' => [
         'tag' => 'Labuan Bajo & Komodo Tourpakete',
