@@ -19,6 +19,9 @@
                 line-height: 1;
                 vertical-align: middle;
             }
+
+            /* Alpine.js cloak (global) */
+            [x-cloak] { display: none !important; }
         </style>
 
         @stack('styles')

@@ -52,7 +52,7 @@
             <form method="POST" action="{{ route('admin.blog-posts.destroy', $post) }}" class="mt-8" onsubmit="return confirm('Hapus artikel ini?');">
                 @csrf
                 @method('DELETE')
-                <button class="w-full rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white">Hapus</button>
+                <button type="submit" class="w-full rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white">Hapus</button>
             </form>
         </aside>
     </div>

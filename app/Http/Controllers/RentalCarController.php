@@ -40,9 +40,17 @@ class RentalCarController extends Controller
         ]);
     }
 
-    public function show(string $slug, RentalPriceCalculator $priceCalculator)
+    public function show(string $lang, string $slug, RentalPriceCalculator $priceCalculator)
     {
         $locale = app()->getLocale();
+        $lang = strtolower($lang);
+
+        // Pastikan locale sinkron dengan prefix bahasa di URL.
+        if ($lang !== $locale) {
+            app()->setLocale($lang);
+            $locale = $lang;
+        }
+
         $fallbackLocale = (string) config('app.fallback_locale', 'en');
         $currencyCode = session('currency', 'IDR');
 

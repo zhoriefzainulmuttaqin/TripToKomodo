@@ -29,6 +29,94 @@ return [
             'per_person' => 'за человека',
             'see_detail' => 'Подробнее',
         ],
+        'detail' => [
+            'meta_description_fallback' => 'Премиальный тур в Лабуан-Баджо.',
+            'price_suffix' => '/ чел.',
+            'currency_idr' => 'Rp',
+
+            'cta_overview' => 'Смотреть детали',
+            'cta_consult' => 'Консультация',
+
+            'badge_max' => 'Макс. :count',
+
+            'stats' => [
+                'price_from' => 'Цена от',
+                'operator' => 'Оператор',
+                'availability' => 'Доступность',
+            ],
+
+            'availability_not_set' => 'Не настроено',
+            'availability_count' => ':count дат доступно',
+
+            'booking' => [
+                'title' => 'Быстрое бронирование',
+                'note' => 'Цена автоматически подстраивается под выбранную валюту.',
+                'min' => 'Мин.',
+                'max' => 'Макс.',
+                'pax' => 'чел.',
+                'status' => 'Статус',
+                'cta_consult_book' => 'Консультация и бронь',
+                'cta_check_availability' => 'Проверить даты',
+            ],
+
+            'status' => [
+                'published' => 'Опубликовано',
+                'draft' => 'Черновик',
+                'archived' => 'В архиве',
+                'unknown' => 'Неизвестно',
+            ],
+
+            'sections' => [
+                'description' => 'Описание',
+                'itinerary' => 'Маршрут',
+                'itinerary_fallback' => 'Полный маршрут сообщит наш консьерж.',
+                'included' => 'Включено',
+                'excluded' => 'Не включено',
+                'included_fallback' => 'Проживание на лодке, питание, команда и фото/видео.',
+                'excluded_fallback' => 'Авиабилеты, личная страховка и личные расходы.',
+                'transportation' => 'Транспорт',
+                'destinations' => 'Места',
+                'destinations_fallback' => 'Интересные места, которые вы посетите во время тура.',
+                'view_on_maps' => 'Открыть в Maps',
+            ],
+
+            'availability' => [
+                'title' => 'Доступность',
+                'empty' => 'Календарь доступности ещё не настроен для этого пакета. Свяжитесь с консьержем для проверки дат.',
+                'calendar_days' => ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                'slot_count' => ':count мест',
+                'legend_available' => 'Доступно',
+                'legend_closed' => 'Нет мест/Закрыто',
+            ],
+
+            'actions' => [
+                'ask_schedule' => 'Уточнить даты и забронировать',
+                'view_other_packages' => 'Посмотреть другие пакеты',
+            ],
+
+            'faq' => [
+                'title' => 'FAQ',
+                'empty' => 'FAQ скоро появятся.',
+            ],
+
+            'reviews' => [
+                'title' => 'Отзывы',
+                'summary' => 'Рейтинг :rating/5 • :count отзывов',
+                'reviewer_fallback' => 'Путешественник',
+                'rating_label' => 'Рейтинг:',
+                'empty' => 'Пока нет отзывов.',
+            ],
+
+            'summary' => [
+                'title' => 'Кратко',
+                'duration' => 'Длительность',
+                'capacity' => 'Группа',
+                'category' => 'Категория',
+                'operator' => 'Оператор',
+                'cta_consult' => 'Консультация',
+                'cta_availability' => 'Смотреть доступность',
+            ],
+        ],
     ],
 
     'rental' => [

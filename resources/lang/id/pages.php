@@ -29,6 +29,94 @@ return [
             'per_person' => 'per orang',
             'see_detail' => 'Lihat Detail',
         ],
+        'detail' => [
+            'meta_description_fallback' => 'Paket trip Labuan Bajo premium.',
+            'price_suffix' => '/ orang',
+            'currency_idr' => 'Rp',
+
+            'cta_overview' => 'Lihat Detail',
+            'cta_consult' => 'Konsultasi Trip',
+
+            'badge_max' => 'Max :count',
+
+            'stats' => [
+                'price_from' => 'Harga mulai',
+                'operator' => 'Operator',
+                'availability' => 'Ketersediaan',
+            ],
+
+            'availability_not_set' => 'Belum diatur',
+            'availability_count' => '{1} :count tanggal tersedia|[2,*] :count tanggal tersedia',
+
+            'booking' => [
+                'title' => 'Booking cepat',
+                'note' => 'Harga ditampilkan otomatis menyesuaikan mata uang yang dipilih.',
+                'min' => 'Min',
+                'max' => 'Max',
+                'pax' => 'pax',
+                'status' => 'Status',
+                'cta_consult_book' => 'Konsultasi & Booking',
+                'cta_check_availability' => 'Cek Ketersediaan',
+            ],
+
+            'status' => [
+                'published' => 'Dipublikasikan',
+                'draft' => 'Draft',
+                'archived' => 'Diarsipkan',
+                'unknown' => 'Tidak diketahui',
+            ],
+
+            'sections' => [
+                'description' => 'Deskripsi',
+                'itinerary' => 'Itinerary',
+                'itinerary_fallback' => 'Itinerary lengkap akan diinformasikan oleh concierge.',
+                'included' => 'Termasuk',
+                'excluded' => 'Tidak termasuk',
+                'included_fallback' => 'Akomodasi kapal, makan, crew, dan dokumentasi.',
+                'excluded_fallback' => 'Tiket pesawat, asuransi pribadi, dan pengeluaran pribadi.',
+                'transportation' => 'Transportasi',
+                'destinations' => 'Destinasi',
+                'destinations_fallback' => 'Destinasi menarik yang akan dikunjungi selama trip.',
+                'view_on_maps' => 'Lihat di Maps',
+            ],
+
+            'availability' => [
+                'title' => 'Ketersediaan',
+                'empty' => 'Kalender ketersediaan belum diatur untuk paket ini. Hubungi concierge untuk cek jadwal.',
+                'calendar_days' => ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                'slot_count' => '{1} :count slot|[2,*] :count slot',
+                'legend_available' => 'Tersedia',
+                'legend_closed' => 'Penuh/Tutup',
+            ],
+
+            'actions' => [
+                'ask_schedule' => 'Tanya Jadwal & Booking',
+                'view_other_packages' => 'Lihat Paket Lain',
+            ],
+
+            'faq' => [
+                'title' => 'FAQ',
+                'empty' => 'FAQ akan segera tersedia.',
+            ],
+
+            'reviews' => [
+                'title' => 'Ulasan',
+                'summary' => 'Rating :rating/5 • :count review',
+                'reviewer_fallback' => 'Traveler',
+                'rating_label' => 'Rating:',
+                'empty' => 'Belum ada ulasan.',
+            ],
+
+            'summary' => [
+                'title' => 'Ringkasan',
+                'duration' => 'Durasi',
+                'capacity' => 'Kapasitas',
+                'category' => 'Kategori',
+                'operator' => 'Operator',
+                'cta_consult' => 'Konsultasi Sekarang',
+                'cta_availability' => 'Lihat Ketersediaan',
+            ],
+        ],
     ],
 
     'rental' => [

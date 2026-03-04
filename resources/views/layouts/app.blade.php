@@ -61,6 +61,9 @@
                 line-height: 1;
                 vertical-align: middle;
             }
+
+            /* Alpine.js cloak (global) */
+            [x-cloak] { display: none !important; }
         </style>
 
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))

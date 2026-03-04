@@ -29,6 +29,94 @@ return [
             'per_person' => 'per person',
             'see_detail' => 'View details',
         ],
+        'detail' => [
+            'meta_description_fallback' => 'Premium Labuan Bajo tour package.',
+            'price_suffix' => '/ person',
+            'currency_idr' => 'Rp',
+
+            'cta_overview' => 'See details',
+            'cta_consult' => 'Trip consultation',
+
+            'badge_max' => 'Max :count',
+
+            'stats' => [
+                'price_from' => 'From price',
+                'operator' => 'Operator',
+                'availability' => 'Availability',
+            ],
+
+            'availability_not_set' => 'Not set yet',
+            'availability_count' => '{1} :count date available|[2,*] :count dates available',
+
+            'booking' => [
+                'title' => 'Quick booking',
+                'note' => 'Prices automatically adjust to the selected currency.',
+                'min' => 'Min',
+                'max' => 'Max',
+                'pax' => 'pax',
+                'status' => 'Status',
+                'cta_consult_book' => 'Consult & Book',
+                'cta_check_availability' => 'Check availability',
+            ],
+
+            'status' => [
+                'published' => 'Published',
+                'draft' => 'Draft',
+                'archived' => 'Archived',
+                'unknown' => 'Unknown',
+            ],
+
+            'sections' => [
+                'description' => 'Description',
+                'itinerary' => 'Itinerary',
+                'itinerary_fallback' => 'Full itinerary will be shared by our concierge.',
+                'included' => 'Included',
+                'excluded' => 'Excluded',
+                'included_fallback' => 'Boat accommodation, meals, crew, and documentation.',
+                'excluded_fallback' => 'Flights, personal insurance, and personal expenses.',
+                'transportation' => 'Transportation',
+                'destinations' => 'Destinations',
+                'destinations_fallback' => 'Highlights you will visit during the trip.',
+                'view_on_maps' => 'View on Maps',
+            ],
+
+            'availability' => [
+                'title' => 'Availability',
+                'empty' => 'Availability calendar is not set for this package yet. Contact our concierge to check dates.',
+                'calendar_days' => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                'slot_count' => '{1} :count slot|[2,*] :count slots',
+                'legend_available' => 'Available',
+                'legend_closed' => 'Full/Closed',
+            ],
+
+            'actions' => [
+                'ask_schedule' => 'Ask dates & book',
+                'view_other_packages' => 'See other packages',
+            ],
+
+            'faq' => [
+                'title' => 'FAQ',
+                'empty' => 'FAQ will be available soon.',
+            ],
+
+            'reviews' => [
+                'title' => 'Reviews',
+                'summary' => 'Rating :rating/5 • :count reviews',
+                'reviewer_fallback' => 'Traveler',
+                'rating_label' => 'Rating:',
+                'empty' => 'No reviews yet.',
+            ],
+
+            'summary' => [
+                'title' => 'Summary',
+                'duration' => 'Duration',
+                'capacity' => 'Capacity',
+                'category' => 'Category',
+                'operator' => 'Operator',
+                'cta_consult' => 'Consult now',
+                'cta_availability' => 'View availability',
+            ],
+        ],
     ],
 
     'rental' => [

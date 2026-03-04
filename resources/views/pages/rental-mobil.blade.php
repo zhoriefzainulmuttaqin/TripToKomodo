@@ -69,7 +69,9 @@
                                 : number_format($amount, 2, '.', ',');
                         @endphp
 
-                        <a href="{{ $slug !== '' ? route('rental.mobil.show', ['lang' => app()->getLocale(), 'slug' => $slug]) : '#' }}" class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                        @php $carUrl = $slug !== '' ? route('rental.mobil.show', ['lang' => app()->getLocale(), 'slug' => $slug]) : null; @endphp
+                        @if ($carUrl)
+                        <a href="{{ $carUrl }}" class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <div class="aspect-[4/3] w-full overflow-hidden bg-slate-100">
                                 @if (!empty($car->image))
                                     <img src="{{ $car->image }}" alt="{{ $name }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" loading="lazy" decoding="async" />
@@ -112,6 +114,19 @@
                                 </div>
                             </div>
                         </a>
+                        @else
+                        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm opacity-70">
+                            <div class="aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                                @if (!empty($car->image))
+                                    <img src="{{ $car->image }}" alt="{{ $name }}" class="h-full w-full object-cover" loading="lazy" decoding="async" />
+                                @endif
+                            </div>
+                            <div class="p-5">
+                                <div class="text-lg font-semibold text-slate-900">{{ $name }}</div>
+                                <div class="mt-3 text-sm text-slate-500">{{ $carsUi['unavailable'] ?? 'Unit tidak tersedia.' }}</div>
+                            </div>
+                        </div>
+                        @endif
                     @endforeach
                 </div>
             @endif

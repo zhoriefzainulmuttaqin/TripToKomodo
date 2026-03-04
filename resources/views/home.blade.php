@@ -181,9 +181,9 @@
                                 </button>
                                 <input type="hidden" name="duration" :value="duration">
                                 <div x-cloak x-show="durOpen" x-transition class="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
-                                    <a @click.prevent="setDuration('', '{{ $t['trip_finder']['duration_all'] }}')" href="#" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': duration === '' }">{{ $t['trip_finder']['duration_all'] }}</a>
+                                    <button type="button" @click="setDuration('', '{{ $t['trip_finder']['duration_all'] }}')" class="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': duration === '' }">{{ $t['trip_finder']['duration_all'] }}</button>
                                     @foreach ($durations as $d)
-                                        <a @click.prevent="setDuration('{{ $d['value'] }}', '{{ $d['label'] }}')" href="#" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': duration === '{{ $d['value'] }}' }">{{ $d['label'] }}</a>
+                                        <button type="button" @click="setDuration('{{ $d['value'] }}', '{{ $d['label'] }}')" class="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': duration === '{{ $d['value'] }}' }">{{ $d['label'] }}</button>
                                     @endforeach
                                 </div>
                             </div>
@@ -199,9 +199,9 @@
                                 </button>
                                 <input type="hidden" name="category" :value="category">
                                 <div x-cloak x-show="catOpen" x-transition class="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
-                                    <a @click.prevent="setCategory('', '{{ $t['trip_finder']['category_all'] }}')" href="#" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': category === '' }">{{ $t['trip_finder']['category_all'] }}</a>
+                                    <button type="button" @click="setCategory('', '{{ $t['trip_finder']['category_all'] }}')" class="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': category === '' }">{{ $t['trip_finder']['category_all'] }}</button>
                                     @foreach ($categories as $c)
-                                        <a @click.prevent="setCategory('{{ $c['value'] }}', '{{ $c['label'] }}')" href="#" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': category === '{{ $c['value'] }}' }">{{ $c['label'] }}</a>
+                                        <button type="button" @click="setCategory('{{ $c['value'] }}', '{{ $c['label'] }}')" class="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': category === '{{ $c['value'] }}' }">{{ $c['label'] }}</button>
                                     @endforeach
                                 </div>
                             </div>
@@ -217,9 +217,9 @@
                                 </button>
                                 <input type="hidden" name="destination" :value="destination">
                                 <div x-cloak x-show="destOpen" x-transition class="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
-                                    <a @click.prevent="setDestination('', '{{ $t['trip_finder']['destination_all'] }}')" href="#" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': destination === '' }">{{ $t['trip_finder']['destination_all'] }}</a>
+                                    <button type="button" @click="setDestination('', '{{ $t['trip_finder']['destination_all'] }}')" class="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': destination === '' }">{{ $t['trip_finder']['destination_all'] }}</button>
                                     @foreach ($tripFinderDestinations as $d)
-                                        <a @click.prevent="setDestination('{{ $d['value'] }}', '{{ $d['label'] }}')" href="#" class="block px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': destination === '{{ $d['value'] }}' }">{{ $d['label'] }}</a>
+                                        <button type="button" @click="setDestination('{{ $d['value'] }}', '{{ $d['label'] }}')" class="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" :class="{ 'bg-emerald-50 text-emerald-800': destination === '{{ $d['value'] }}' }">{{ $d['label'] }}</button>
                                     @endforeach
                                 </div>
                             </div>

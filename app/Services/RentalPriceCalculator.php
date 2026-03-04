@@ -13,7 +13,7 @@ class RentalPriceCalculator
 
         $currencyCode = strtoupper($currencyCode ?: 'IDR');
         $converted = $this->convertFromIdr($baseIdr, $currencyCode);
-        $converted = $this->applyPsychologyPricing($converted, $currencyCode);
+        $converted = $this->applyPsychologyPricing($converted);
 
         return [
             'price_per_day_idr' => $baseIdr,
@@ -36,18 +36,10 @@ class RentalPriceCalculator
         return $amount / (float) $rate;
     }
 
-    protected function applyPsychologyPricing(float $amount, string $currencyCode): float
+    protected function applyPsychologyPricing(float $amount): float
     {
-        $rounded = round($amount, 2);
-
-        if (in_array($currencyCode, ['USD', 'EUR', 'GBP', 'AUD', 'CAD'], true)) {
-            return floor($rounded) + 0.99;
-        }
-
-        if ($currencyCode === 'IDR') {
-            return floor($rounded / 1000) * 1000 + 990;
-        }
-
-        return $rounded;
+        // Psychology pricing dimatikan untuk semua currency.
+        // Harga hanya dibulatkan normal agar sesuai nilai perhitungan sebenarnya.
+        return round($amount, 2);
     }
 }

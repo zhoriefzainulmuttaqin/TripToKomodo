@@ -7,7 +7,7 @@
 @endphp
 
 @section('title', ($translation->meta_title ?? $translation->title) . ' | Labuan Bajo')
-@section('meta_description', $translation->meta_description ?? $translation->summary ?? 'Paket trip Labuan Bajo premium.')
+@section('meta_description', $translation->meta_description ?? $translation->summary ?? __('pages.tours.detail.meta_description_fallback'))
 @section('canonical', url()->current())
 @section('og_type', 'article')
 @section('og_image', $ogImage)
@@ -64,8 +64,8 @@
         ]);
 
         $breadcrumbSchema = $seo->breadcrumbSchema([
-            ['name' => 'Home', 'url' => route('home', ['lang' => app()->getLocale()])],
-            ['name' => 'Tours', 'url' => route('tours.index', ['lang' => app()->getLocale()])],
+            ['name' => __('nav.menu_home'), 'url' => route('home', ['lang' => app()->getLocale()])],
+            ['name' => __('nav.menu_trips'), 'url' => route('tours.index', ['lang' => app()->getLocale()])],
             ['name' => $translation->title, 'url' => url()->current()],
         ]);
 
@@ -97,14 +97,10 @@
         $includesLines = $formatLines($translation->includes);
         $excludesLines = $formatLines($translation->excludes);
 
-        $priceSuffixes = [
-            'id' => '/ orang',
-            'en' => '/ person',
-            'ru' => '/ чел.',
-            'zh' => '/ 人',
-            'de' => '/ Person',
-        ];
-        $priceSuffix = $priceSuffixes[app()->getLocale()] ?? '/ person';
+        $priceSuffix = __('pages.tours.detail.price_suffix');
+        if (!is_string($priceSuffix) || $priceSuffix === 'pages.tours.detail.price_suffix') {
+            $priceSuffix = '/ person';
+        }
     @endphp
 
     @push('schema')
@@ -132,9 +128,9 @@
 
         <div class="relative mx-auto max-w-6xl px-6 py-14">
             <nav class="text-xs text-white/80">
-                <a href="{{ route('home', ['lang' => app()->getLocale()]) }}" class="hover:text-white">Home</a>
+                <a href="{{ route('home', ['lang' => app()->getLocale()]) }}" class="hover:text-white">{{ __('nav.menu_home') }}</a>
                 <span class="px-2">/</span>
-                <a href="{{ route('tours.index', ['lang' => app()->getLocale()]) }}" class="hover:text-white">Tours</a>
+                <a href="{{ route('tours.index', ['lang' => app()->getLocale()]) }}" class="hover:text-white">{{ __('nav.menu_trips') }}</a>
                 <span class="px-2">/</span>
                 <span class="text-white">{{ $translation->title }}</span>
             </nav>
@@ -146,7 +142,7 @@
                             <span class="rounded-full bg-white/10 px-4 py-2 text-white">{{ $package->category->name }}</span>
                         @endif
                         <span class="rounded-full bg-white/10 px-4 py-2 text-white">{{ $package->duration_days }}D/{{ $package->duration_nights }}N</span>
-                        <span class="rounded-full bg-white/10 px-4 py-2 text-white">Max {{ $package->max_people ?? '-' }}</span>
+                        <span class="rounded-full bg-white/10 px-4 py-2 text-white">{{ __('pages.tours.detail.badge_max', ['count' => ($package->max_people ?? '-')]) }}</span>
                         @if (!empty($package->difficulty))
                             <span class="rounded-full bg-white/10 px-4 py-2 text-white">{{ ucfirst($package->difficulty) }}</span>
                         @endif
@@ -156,48 +152,53 @@
                     <p class="mt-4 max-w-2xl text-sm leading-relaxed text-white/80">{{ $translation->summary ?? '' }}</p>
 
                     <div class="mt-7 flex flex-wrap gap-3">
-                        <a href="#overview" class="rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white">Lihat Detail</a>
-                        <a href="{{ $contactUrl }}" class="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white">Konsultasi Trip</a>
+                        <a href="#overview" class="rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white">{{ __('pages.tours.detail.cta_overview') }}</a>
+                        <a href="{{ $contactUrl }}" class="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white">{{ __('pages.tours.detail.cta_consult') }}</a>
                     </div>
 
                     <div class="mt-8 grid gap-4 sm:grid-cols-3">
                         <div class="rounded-2xl border border-white/15 bg-white/10 p-4 text-white">
-                            <p class="text-xs text-white/70">Harga mulai</p>
+                            <p class="text-xs text-white/70">{{ __('pages.tours.detail.stats.price_from') }}</p>
                             <p class="mt-2 text-xl font-semibold">{{ $currencySymbol }} {{ $priceFormatted }}</p>
                         </div>
                         <div class="rounded-2xl border border-white/15 bg-white/10 p-4 text-white">
-                            <p class="text-xs text-white/70">Operator</p>
+                            <p class="text-xs text-white/70">{{ __('pages.tours.detail.stats.operator') }}</p>
                             <p class="mt-2 text-sm font-semibold">{{ $package->operator?->name ?? '-' }}</p>
                         </div>
                         <div class="rounded-2xl border border-white/15 bg-white/10 p-4 text-white">
-                            <p class="text-xs text-white/70">Availability</p>
-                            <p class="mt-2 text-sm font-semibold">{{ $hasAvailability ? $availableCount . ' tanggal tersedia' : 'Belum diatur' }}</p>
+                            <p class="text-xs text-white/70">{{ __('pages.tours.detail.stats.availability') }}</p>
+                            <p class="mt-2 text-sm font-semibold">
+                                {{ $hasAvailability
+                                    ? trans_choice('pages.tours.detail.availability_count', $availableCount, ['count' => $availableCount])
+                                    : __('pages.tours.detail.availability_not_set')
+                                }}
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <aside class="rounded-3xl border border-white/15 bg-white/10 p-6 text-white backdrop-blur">
-                    <p class="text-xs uppercase tracking-[0.3em] text-white/70">Quick booking</p>
+                    <p class="text-xs uppercase tracking-[0.3em] text-white/70">{{ __('pages.tours.detail.booking.title') }}</p>
                     <p class="mt-3 text-3xl font-semibold">{{ $currencySymbol }} {{ $priceFormatted }} <span class="text-lg font-normal text-white/80">{{ $priceSuffix }}</span></p>
-                    <p class="mt-2 text-sm text-white/80">Harga ditampilkan otomatis menyesuaikan mata uang yang dipilih.</p>
+                    <p class="mt-2 text-sm text-white/80">{{ __('pages.tours.detail.booking.note') }}</p>
 
                     <div class="mt-6 space-y-3 text-sm text-white/85">
                         <div class="flex items-center justify-between">
-                            <span>Min</span>
-                            <span class="font-semibold">{{ $package->min_people }} pax</span>
+                            <span>{{ __('pages.tours.detail.booking.min') }}</span>
+                            <span class="font-semibold">{{ $package->min_people }} {{ __('pages.tours.detail.booking.pax') }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span>Max</span>
-                            <span class="font-semibold">{{ $package->max_people ?? '-' }} pax</span>
+                            <span>{{ __('pages.tours.detail.booking.max') }}</span>
+                            <span class="font-semibold">{{ $package->max_people ?? '-' }} {{ __('pages.tours.detail.booking.pax') }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span>Status</span>
-                            <span class="font-semibold">{{ ucfirst($package->status) }}</span>
+                            <span>{{ __('pages.tours.detail.booking.status') }}</span>
+                            <span class="font-semibold">{{ __('pages.tours.detail.status.' . ($package->status ?? 'unknown')) }}</span>
                         </div>
                     </div>
 
-                    <a href="{{ $contactUrl }}" class="mt-6 block rounded-full bg-emerald-500 px-6 py-3 text-center text-sm font-semibold text-white">Konsultasi & Booking</a>
-                    <a href="#availability" class="mt-3 block rounded-full border border-white/25 bg-white/10 px-6 py-3 text-center text-sm font-semibold text-white">Cek Availability</a>
+                    <a href="{{ $contactUrl }}" class="mt-6 block rounded-full bg-emerald-500 px-6 py-3 text-center text-sm font-semibold text-white">{{ __('pages.tours.detail.booking.cta_consult_book') }}</a>
+                    <a href="#availability" class="mt-3 block rounded-full border border-white/25 bg-white/10 px-6 py-3 text-center text-sm font-semibold text-white">{{ __('pages.tours.detail.booking.cta_check_availability') }}</a>
 
 
                 </aside>
@@ -220,24 +221,24 @@
 
                 <div class="mt-10 space-y-10">
                     <div>
-                        <h2 class="text-2xl font-semibold text-slate-900">Deskripsi</h2>
+                        <h2 class="text-2xl font-semibold text-slate-900">{{ __('pages.tours.detail.sections.description') }}</h2>
                         <div class="prose mt-4 max-w-none break-words text-slate-700">{!! $descriptionHtml !!}</div>
                     </div>
 
                     <div>
-                        <h2 class="text-2xl font-semibold text-slate-900">Itinerary</h2>
+                        <h2 class="text-2xl font-semibold text-slate-900">{{ __('pages.tours.detail.sections.itinerary') }}</h2>
                         <div class="mt-4 rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-700 break-words">
                             @if ($itineraryIsHtml)
                                 <div class="prose max-w-none break-words">{!! $translation->itinerary !!}</div>
                             @else
-                                <div class="break-words">{!! nl2br(e($translation->itinerary ?? 'Itinerary lengkap akan diinformasikan oleh concierge.')) !!}</div>
+                                <div class="break-words">{!! nl2br(e($translation->itinerary ?? __('pages.tours.detail.sections.itinerary_fallback'))) !!}</div>
                             @endif
                         </div>
                     </div>
 
                     <div class="grid gap-6 md:grid-cols-2">
                         <div class="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-6">
-                            <h3 class="text-lg font-semibold text-emerald-900">Included</h3>
+                            <h3 class="text-lg font-semibold text-emerald-900">{{ __('pages.tours.detail.sections.included') }}</h3>
                             @if ($includesIsHtml)
                                 <div class="prose mt-4 max-w-none text-emerald-950/80 break-words">{!! $translation->includes !!}</div>
                             @elseif (!empty($includesLines))
@@ -247,12 +248,12 @@
                                     @endforeach
                                 </ul>
                             @else
-                                <p class="mt-4 text-sm text-emerald-950/80">Akomodasi kapal, makan, crew, dan dokumentasi.</p>
+                                <p class="mt-4 text-sm text-emerald-950/80">{{ __('pages.tours.detail.sections.included_fallback') }}</p>
                             @endif
                         </div>
 
                         <div class="rounded-3xl border border-rose-100 bg-rose-50/60 p-6">
-                            <h3 class="text-lg font-semibold text-rose-900">Excluded</h3>
+                            <h3 class="text-lg font-semibold text-rose-900">{{ __('pages.tours.detail.sections.excluded') }}</h3>
                             @if ($excludesIsHtml)
                                 <div class="prose mt-4 max-w-none text-rose-950/80 break-words">{!! $translation->excludes !!}</div>
                             @elseif (!empty($excludesLines))
@@ -262,14 +263,14 @@
                                     @endforeach
                                 </ul>
                             @else
-                                <p class="mt-4 text-sm text-rose-950/80">Tiket pesawat, asuransi pribadi, dan pengeluaran pribadi.</p>
+                                <p class="mt-4 text-sm text-rose-950/80">{{ __('pages.tours.detail.sections.excluded_fallback') }}</p>
                             @endif
                         </div>
                     </div>
 
                     @if (!empty($translation->transportation))
                         <div>
-                            <h2 class="text-2xl font-semibold text-slate-900">Transportasi</h2>
+                            <h2 class="text-2xl font-semibold text-slate-900">{{ __('pages.tours.detail.sections.transportation') }}</h2>
                             <div class="mt-4 rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-700 break-words">{!! nl2br(e($translation->transportation)) !!}</div>
                         </div>
                     @endif
@@ -302,13 +303,13 @@
                             prev() { this.current = (this.current - 1 + this.total) % this.total; },
                         }">
                             <div class="flex items-center justify-between">
-                                <h2 class="text-2xl font-semibold text-slate-900">Destinasi</h2>
+                                <h2 class="text-2xl font-semibold text-slate-900">{{ __('pages.tours.detail.sections.destinations') }}</h2>
                                 <div class="flex items-center gap-2">
-                                    <button @click="prev()" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
+                                    <button type="button" @click="prev()" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
                                         <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_left</span>
 
                                     </button>
-                                    <button @click="next()" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
+                                    <button type="button" @click="next()" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
                                         <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_right</span>
 
                                     </button>
@@ -348,14 +349,14 @@
                                                             @if (!empty($dest['description']))
                                                                 <p class="mt-3 text-sm leading-relaxed text-slate-600 line-clamp-3">{{ $dest['description'] }}</p>
                                                             @else
-                                                                <p class="mt-3 text-sm text-slate-500">Destinasi menarik yang akan dikunjungi selama trip.</p>
+                                                                <p class="mt-3 text-sm text-slate-500">{{ __('pages.tours.detail.sections.destinations_fallback') }}</p>
                                                             @endif
                                                             {{-- Maps Link --}}
                                                             @if (!empty($dest['lat']) && !empty($dest['lng']))
                                                                 <a href="https://www.google.com/maps?q={{ $dest['lat'] }},{{ $dest['lng'] }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700">
                                                                     <span class="material-symbols-outlined text-[18px] leading-none" aria-hidden="true">location_on</span>
 
-                                                                    Lihat di Maps
+                                                                    {{ __('pages.tours.detail.sections.view_on_maps') }}
                                                                 </a>
                                                             @endif
                                                         </div>
@@ -370,33 +371,37 @@
                             {{-- Dots Indicator --}}
                             <div class="mt-4 flex justify-center gap-2">
                                 @foreach ($destinationChunks as $index => $chunk)
-                                    <button @click="current = {{ $index }}" :class="{ 'bg-emerald-600 w-6': current === {{ $index }}, 'bg-slate-300 w-2': current !== {{ $index }} }" class="h-2 rounded-full transition-all duration-300"></button>
+                                    <button type="button" @click="current = {{ $index }}" :class="{ 'bg-emerald-600 w-6': current === {{ $index }}, 'bg-slate-300 w-2': current !== {{ $index }} }" class="h-2 rounded-full transition-all duration-300"></button>
                                 @endforeach
                             </div>
                         </div>
                     @endif
 
                     <div id="availability">
-                        <h2 class="text-2xl font-semibold text-slate-900">Ketersediaan</h2>
+                        <h2 class="text-2xl font-semibold text-slate-900">{{ __('pages.tours.detail.availability.title') }}</h2>
 
                         @if (!$hasAvailability)
                             <div class="mt-4 rounded-3xl border border-dashed border-emerald-200 bg-emerald-50 p-6 text-sm text-emerald-900">
-                                Kalender ketersediaan belum diatur untuk paket ini. Hubungi concierge untuk cek jadwal.
+                                {{ __('pages.tours.detail.availability.empty') }}
                             </div>
                         @else
                             @php
                                 $availabilitiesByMonth = $package->availabilities->groupBy(fn($a) => $a->date->format('Y-m'));
                                 $locale = app()->getLocale();
-                                $monthNames = [
-                                    'id' => ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-                                    'en' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                                ];
+
+                                $carbonLocale = $locale === 'zh' ? 'zh_CN' : $locale;
+
                                 $jsMonthNames = [];
-                                foreach($availabilitiesByMonth as $ym => $ma) {
-                                    [$y, $m] = explode('-', $ym);
-                                    $mi = (int)$m - 1;
-                                    $mn = $monthNames[$locale][$mi] ?? $monthNames['en'][$mi];
-                                    $jsMonthNames[] = "$mn $y";
+                                foreach ($availabilitiesByMonth as $ym => $ma) {
+                                    try {
+                                        $monthLabel = \Carbon\CarbonImmutable::createFromFormat('Y-m', $ym)
+                                            ->locale($carbonLocale)
+                                            ->isoFormat('MMMM YYYY');
+                                    } catch (\Throwable) {
+                                        $monthLabel = $ym;
+                                    }
+
+                                    $jsMonthNames[] = $monthLabel;
                                 }
                             @endphp
 
@@ -409,14 +414,14 @@
                             }">
                                 {{-- Month Navigation --}}
                                 <div class="mb-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                    <button @click="prev()" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-colors">
+                                    <button type="button" @click="prev()" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-colors">
                                         <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_left</span>
 
                                     </button>
                                     
                                     <span class="font-semibold text-slate-900" x-text="monthNames[currentIdx]"></span>
                                     
-                                    <button @click="next()" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-colors">
+                                    <button type="button" @click="next()" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-colors">
                                         <span class="material-symbols-outlined text-[22px] leading-none" aria-hidden="true">chevron_right</span>
 
                                     </button>
@@ -430,9 +435,10 @@
                                             $firstDayOfMonth = \Carbon\Carbon::create($year, $month, 1);
                                             $daysInMonth = $firstDayOfMonth->daysInMonth;
                                             $startDayOfWeek = $firstDayOfMonth->dayOfWeek;
-                                            $dayNames = $locale === 'id' 
-                                                ? ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
-                                                : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                                            $dayNames = trans('pages.tours.detail.availability.calendar_days');
+                                            if (!is_array($dayNames) || empty($dayNames)) {
+                                                $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                                            }
                                         @endphp
                                         <div x-show="currentIdx === {{ $loop->index }}" 
                                              x-transition:enter="transition ease-out duration-300"
@@ -459,13 +465,13 @@
                                                             <div class="flex h-full w-full flex-col items-center justify-center rounded-xl border transition-all {{ $availability->is_available ? 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100' : 'border-rose-200 bg-rose-50 hover:bg-rose-100' }}">
                                                                 <span class="text-sm font-semibold {{ $availability->is_available ? 'text-emerald-700' : 'text-rose-700' }}">{{ $day }}</span>
                                                                 @if ($availability->is_available && $availability->available_slots)
-                                                                    <span class="mt-0.5 text-[10px] {{ $availability->is_available ? 'text-emerald-600' : 'text-rose-600' }}">{{ $availability->available_slots }} slot</span>
+                                                                    <span class="mt-0.5 text-[10px] {{ $availability->is_available ? 'text-emerald-600' : 'text-rose-600' }}">{{ trans_choice('pages.tours.detail.availability.slot_count', (int) $availability->available_slots, ['count' => (int) $availability->available_slots]) }}</span>
                                                                 @endif
                                                             </div>
                                                             @if ($availability->note || $availability->price_idr_override)
                                                                 <div class="absolute bottom-full left-1/2 z-10 mb-2 hidden w-40 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg group-hover:block">
                                                                     @if ($availability->price_idr_override)
-                                                                        <p class="text-xs font-semibold text-emerald-700">Rp {{ number_format($availability->price_idr_override, 0, ',', '.') }}</p>
+                                                                        <p class="text-xs font-semibold text-emerald-700">{{ __('pages.tours.detail.currency_idr') }} {{ number_format($availability->price_idr_override, 0, ',', '.') }}</p>
                                                                     @endif
                                                                     @if ($availability->note)
                                                                         <p class="mt-1 text-xs text-slate-600">{{ $availability->note }}</p>
@@ -486,11 +492,11 @@
                                     <div class="mt-4 flex items-center gap-4 text-xs border-t border-slate-100 pt-4">
                                         <div class="flex items-center gap-2">
                                             <div class="h-4 w-4 rounded border border-emerald-200 bg-emerald-50"></div>
-                                            <span class="text-slate-600">Tersedia</span>
+                                            <span class="text-slate-600">{{ __('pages.tours.detail.availability.legend_available') }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <div class="h-4 w-4 rounded border border-rose-200 bg-rose-50"></div>
-                                            <span class="text-slate-600">Penuh/Tutup</span>
+                                            <span class="text-slate-600">{{ __('pages.tours.detail.availability.legend_closed') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -498,14 +504,14 @@
                         @endif
 
                         <div class="mt-6 flex flex-wrap items-center gap-3">
-                            <a href="{{ $contactUrl }}" class="rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white">Tanya Jadwal & Booking</a>
-                            <a href="{{ route('tours.index', ['lang' => app()->getLocale()]) }}" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm text-slate-700 hover:text-emerald-700">Lihat Paket Lain</a>
+                            <a href="{{ $contactUrl }}" class="rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white">{{ __('pages.tours.detail.actions.ask_schedule') }}</a>
+                            <a href="{{ route('tours.index', ['lang' => app()->getLocale()]) }}" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm text-slate-700 hover:text-emerald-700">{{ __('pages.tours.detail.actions.view_other_packages') }}</a>
                         </div>
                     </div>
 
                     <div class="grid gap-6 md:grid-cols-2">
                         <div class="rounded-3xl border border-slate-200 bg-white p-6">
-                            <h2 class="text-xl font-semibold text-slate-900">FAQ</h2>
+                            <h2 class="text-xl font-semibold text-slate-900">{{ __('pages.tours.detail.faq.title') }}</h2>
                             <div class="mt-4 space-y-4 text-sm text-slate-700">
                                 @forelse ($faqItems as $faq)
                                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -513,26 +519,31 @@
                                         <p class="mt-2 break-words">{{ $faq->answer }}</p>
                                     </div>
                                 @empty
-                                    <p class="text-slate-600">FAQ akan segera tersedia.</p>
+                                    <p class="text-slate-600">{{ __('pages.tours.detail.faq.empty') }}</p>
                                 @endforelse
                             </div>
                         </div>
 
                         <div class="rounded-3xl border border-slate-200 bg-white p-6">
-                            <h2 class="text-xl font-semibold text-slate-900">Ulasan</h2>
-                            <p class="mt-2 text-sm text-slate-600">Rating {{ number_format($package->reviews->avg('rating') ?? 4.8, 1) }}/5 • {{ $package->reviews->count() ?: 12 }} review</p>
+                            <h2 class="text-xl font-semibold text-slate-900">{{ __('pages.tours.detail.reviews.title') }}</h2>
+                            <p class="mt-2 text-sm text-slate-600">
+                                {{ __('pages.tours.detail.reviews.summary', [
+                                    'rating' => number_format($package->reviews->avg('rating') ?? 4.8, 1),
+                                    'count' => ($package->reviews->count() ?: 12),
+                                ]) }}
+                            </p>
 
                             <div class="mt-4 space-y-4 text-sm text-slate-700">
                                 @forelse ($package->reviews->take(4) as $review)
                                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                        <p class="font-semibold text-slate-900">{{ $review->author_name ?? 'Traveler' }}</p>
-                                        <p class="mt-1 text-xs text-slate-500">Rating: {{ $review->rating }}/5</p>
+                                        <p class="font-semibold text-slate-900">{{ $review->author_name ?? __('pages.tours.detail.reviews.reviewer_fallback') }}</p>
+                                        <p class="mt-1 text-xs text-slate-500">{{ __('pages.tours.detail.reviews.rating_label') }} {{ $review->rating }}/5</p>
                                         @if (!empty($review->review))
                                             <p class="mt-2 break-words">{{ $review->review }}</p>
                                         @endif
                                     </div>
                                 @empty
-                                    <p class="text-slate-600">Belum ada ulasan.</p>
+                                    <p class="text-slate-600">{{ __('pages.tours.detail.reviews.empty') }}</p>
                                 @endforelse
                             </div>
                         </div>
@@ -543,28 +554,28 @@
             <div>
                 <div class="sticky top-24 space-y-6">
                     <div class="rounded-3xl border border-emerald-100 bg-emerald-50 p-6">
-                        <p class="text-xs uppercase tracking-[0.25em] text-emerald-700">Ringkasan</p>
+                        <p class="text-xs uppercase tracking-[0.25em] text-emerald-700">{{ __('pages.tours.detail.summary.title') }}</p>
                         <div class="mt-4 space-y-3 text-sm text-emerald-950/90">
                             <div class="flex items-center justify-between">
-                                <span>Durasi</span>
+                                <span>{{ __('pages.tours.detail.summary.duration') }}</span>
                                 <span class="font-semibold">{{ $package->duration_days }}D/{{ $package->duration_nights }}N</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span>Kapasitas</span>
-                                <span class="font-semibold">{{ $package->min_people }} - {{ $package->max_people ?? '-' }} pax</span>
+                                <span>{{ __('pages.tours.detail.summary.capacity') }}</span>
+                                <span class="font-semibold">{{ $package->min_people }} - {{ $package->max_people ?? '-' }} {{ __('pages.tours.detail.booking.pax') }}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span>Kategori</span>
+                                <span>{{ __('pages.tours.detail.summary.category') }}</span>
                                 <span class="font-semibold">{{ $package->category?->name ?? '-' }}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span>Operator</span>
+                                <span>{{ __('pages.tours.detail.summary.operator') }}</span>
                                 <span class="font-semibold">{{ $package->operator?->name ?? '-' }}</span>
                             </div>
                         </div>
 
-                        <a href="{{ $contactUrl }}" class="mt-6 block rounded-full bg-emerald-600 px-6 py-3 text-center text-sm font-semibold text-white">Konsultasi Sekarang</a>
-                        <a href="#availability" class="mt-3 block rounded-full border border-emerald-200 bg-white px-6 py-3 text-center text-sm font-semibold text-emerald-800">Lihat Availability</a>
+                        <a href="{{ $contactUrl }}" class="mt-6 block rounded-full bg-emerald-600 px-6 py-3 text-center text-sm font-semibold text-white">{{ __('pages.tours.detail.summary.cta_consult') }}</a>
+                        <a href="#availability" class="mt-3 block rounded-full border border-emerald-200 bg-white px-6 py-3 text-center text-sm font-semibold text-emerald-800">{{ __('pages.tours.detail.summary.cta_availability') }}</a>
                     </div>
 
 

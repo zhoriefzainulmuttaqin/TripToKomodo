@@ -29,6 +29,94 @@ return [
             'per_person' => 'pro Person',
             'see_detail' => 'Details ansehen',
         ],
+        'detail' => [
+            'meta_description_fallback' => 'Premium Labuan Bajo Tourpaket.',
+            'price_suffix' => '/ Person',
+            'currency_idr' => 'Rp',
+
+            'cta_overview' => 'Details ansehen',
+            'cta_consult' => 'Reiseberatung',
+
+            'badge_max' => 'Max. :count',
+
+            'stats' => [
+                'price_from' => 'Preis ab',
+                'operator' => 'Anbieter',
+                'availability' => 'Verfügbarkeit',
+            ],
+
+            'availability_not_set' => 'Noch nicht eingestellt',
+            'availability_count' => '{1} :count Termin verfügbar|[2,*] :count Termine verfügbar',
+
+            'booking' => [
+                'title' => 'Schnell buchen',
+                'note' => 'Preise passen sich automatisch an die gewählte Währung an.',
+                'min' => 'Min.',
+                'max' => 'Max.',
+                'pax' => 'Pax',
+                'status' => 'Status',
+                'cta_consult_book' => 'Beratung & Buchung',
+                'cta_check_availability' => 'Verfügbarkeit prüfen',
+            ],
+
+            'status' => [
+                'published' => 'Veröffentlicht',
+                'draft' => 'Entwurf',
+                'archived' => 'Archiviert',
+                'unknown' => 'Unbekannt',
+            ],
+
+            'sections' => [
+                'description' => 'Beschreibung',
+                'itinerary' => 'Route',
+                'itinerary_fallback' => 'Die vollständige Route teilt unser Concierge mit.',
+                'included' => 'Inklusive',
+                'excluded' => 'Exklusive',
+                'included_fallback' => 'Bootsunterkunft, Mahlzeiten, Crew und Dokumentation.',
+                'excluded_fallback' => 'Flüge, persönliche Versicherung und persönliche Ausgaben.',
+                'transportation' => 'Transport',
+                'destinations' => 'Ziele',
+                'destinations_fallback' => 'Highlights, die du während der Reise besuchst.',
+                'view_on_maps' => 'In Maps ansehen',
+            ],
+
+            'availability' => [
+                'title' => 'Verfügbarkeit',
+                'empty' => 'Der Verfügbarkeitskalender ist für dieses Paket noch nicht eingerichtet. Kontaktiere unseren Concierge für Termine.',
+                'calendar_days' => ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+                'slot_count' => '{1} :count Platz|[2,*] :count Plätze',
+                'legend_available' => 'Verfügbar',
+                'legend_closed' => 'Voll/Geschlossen',
+            ],
+
+            'actions' => [
+                'ask_schedule' => 'Termine anfragen & buchen',
+                'view_other_packages' => 'Andere Pakete ansehen',
+            ],
+
+            'faq' => [
+                'title' => 'FAQ',
+                'empty' => 'FAQ sind bald verfügbar.',
+            ],
+
+            'reviews' => [
+                'title' => 'Bewertungen',
+                'summary' => 'Bewertung :rating/5 • :count Bewertungen',
+                'reviewer_fallback' => 'Reisender',
+                'rating_label' => 'Bewertung:',
+                'empty' => 'Noch keine Bewertungen.',
+            ],
+
+            'summary' => [
+                'title' => 'Zusammenfassung',
+                'duration' => 'Dauer',
+                'capacity' => 'Kapazität',
+                'category' => 'Kategorie',
+                'operator' => 'Anbieter',
+                'cta_consult' => 'Jetzt beraten lassen',
+                'cta_availability' => 'Verfügbarkeit ansehen',
+            ],
+        ],
     ],
 
     'rental' => [

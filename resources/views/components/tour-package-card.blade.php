@@ -6,18 +6,28 @@
     $locale = app()->getLocale();
     $fallbackLocale = (string) config('app.fallback_locale', 'en');
 
-    $translation = ($package->translations ?? collect())->firstWhere('language_code', $locale)
-        ?? ($package->translations ?? collect())->firstWhere('language_code', $fallbackLocale)
-        ?? ($package->translations ?? collect())->first();
+    $translations = ($package->translations ?? collect());
 
-    $linkLang = $translation?->language_code ?? $locale;
+    $localeTranslation = $translations->firstWhere('language_code', $locale);
+    $fallbackTranslation = $translations->firstWhere('language_code', $fallbackLocale);
+
+    $translation = $localeTranslation
+        ?? $fallbackTranslation
+        ?? $translations->first();
+
+    // Selalu pertahankan locale yang sedang aktif pada URL.
+    // Kalau slug yang diklik ternyata berasal dari bahasa lain, `TourController@show` akan mengarahkan ke slug yang sesuai locale.
+    $linkLang = $locale;
 
     $primaryImage = ($package->images ?? collect())->firstWhere('is_primary', true);
     $image = $primaryImage ?? ($package->images ?? collect())->sortBy('sort_order')->first();
     $imageUrl = $image?->url ?? null;
 
-    $url = !empty($translation?->slug)
-        ? route('tours.show', ['lang' => $linkLang, 'slug' => $translation->slug])
+    $slugForUrl = $localeTranslation?->slug
+        ?: ($fallbackTranslation?->slug ?: ($translation?->slug ?? null));
+
+    $url = !empty($slugForUrl)
+        ? route('tours.show', ['lang' => $linkLang, 'slug' => $slugForUrl])
         : null;
 
     $pricing = is_array($package->pricing ?? null) ? $package->pricing : null;

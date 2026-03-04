@@ -139,25 +139,41 @@ class TourController extends Controller
             ->where('is_active', true)
             ->first();
 
-
-
         if (!$translation) {
-            $translation = TourPackageTranslation::query()
+            // Slug yang diketik/di-klik mungkin berasal dari bahasa lain.
+            // Cari dulu translasi apapun berdasarkan slug tersebut, lalu coba map ke translasi locale aktif.
+            $anyTranslation = TourPackageTranslation::query()
                 ->where('slug', $slug)
                 ->where('is_active', true)
                 ->first();
 
-            if (!$translation) {
+            if (!$anyTranslation) {
                 abort(404);
             }
 
+            $targetTranslation = TourPackageTranslation::query()
+                ->where('tour_package_id', $anyTranslation->tour_package_id)
+                ->where('language_code', $locale)
+                ->where('is_active', true)
+                ->first();
 
-            if ($translation->language_code !== $locale) {
+            // Jika ada translasi sesuai locale aktif, arahkan ke slug yang benar tanpa mengganti bahasa.
+            if ($targetTranslation && !empty($targetTranslation->slug) && $targetTranslation->slug !== $slug) {
                 return redirect()->route('tours.show', [
-                    'lang' => $translation->language_code,
-                    'slug' => $translation->slug,
+                    'lang' => $locale,
+                    'slug' => $targetTranslation->slug,
                 ], 301);
             }
+
+            // Kalau tidak ada translasi di locale aktif, fallback ke bahasa dari slug yang ditemukan.
+            if ($anyTranslation->language_code !== $locale) {
+                return redirect()->route('tours.show', [
+                    'lang' => $anyTranslation->language_code,
+                    'slug' => $anyTranslation->slug,
+                ], 301);
+            }
+
+            $translation = $anyTranslation;
         }
 
         $package = TourPackage::query()

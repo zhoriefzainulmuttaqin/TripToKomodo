@@ -29,6 +29,94 @@ return [
             'per_person' => 'por persona',
             'see_detail' => 'Ver detalles',
         ],
+        'detail' => [
+            'meta_description_fallback' => 'Paquete premium de Labuan Bajo.',
+            'price_suffix' => '/ persona',
+            'currency_idr' => 'Rp',
+
+            'cta_overview' => 'Ver detalles',
+            'cta_consult' => 'Consulta del viaje',
+
+            'badge_max' => 'Máx. :count',
+
+            'stats' => [
+                'price_from' => 'Precio desde',
+                'operator' => 'Operador',
+                'availability' => 'Disponibilidad',
+            ],
+
+            'availability_not_set' => 'Aún no configurado',
+            'availability_count' => '{1} :count fecha disponible|[2,*] :count fechas disponibles',
+
+            'booking' => [
+                'title' => 'Reserva rápida',
+                'note' => 'Los precios se ajustan automáticamente a la moneda seleccionada.',
+                'min' => 'Mín.',
+                'max' => 'Máx.',
+                'pax' => 'pax',
+                'status' => 'Estado',
+                'cta_consult_book' => 'Consultar y reservar',
+                'cta_check_availability' => 'Ver disponibilidad',
+            ],
+
+            'status' => [
+                'published' => 'Publicado',
+                'draft' => 'Borrador',
+                'archived' => 'Archivado',
+                'unknown' => 'Desconocido',
+            ],
+
+            'sections' => [
+                'description' => 'Descripción',
+                'itinerary' => 'Itinerario',
+                'itinerary_fallback' => 'El itinerario completo será compartido por nuestro concierge.',
+                'included' => 'Incluye',
+                'excluded' => 'No incluye',
+                'included_fallback' => 'Alojamiento en barco, comidas, tripulación y documentación.',
+                'excluded_fallback' => 'Vuelos, seguro personal y gastos personales.',
+                'transportation' => 'Transporte',
+                'destinations' => 'Destinos',
+                'destinations_fallback' => 'Lugares destacados que visitarás durante el viaje.',
+                'view_on_maps' => 'Ver en Maps',
+            ],
+
+            'availability' => [
+                'title' => 'Disponibilidad',
+                'empty' => 'El calendario de disponibilidad aún no está configurado para este paquete. Contacta a nuestro concierge para confirmar fechas.',
+                'calendar_days' => ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+                'slot_count' => '{1} :count plaza|[2,*] :count plazas',
+                'legend_available' => 'Disponible',
+                'legend_closed' => 'Completo/Cerrado',
+            ],
+
+            'actions' => [
+                'ask_schedule' => 'Consultar fechas y reservar',
+                'view_other_packages' => 'Ver otros paquetes',
+            ],
+
+            'faq' => [
+                'title' => 'FAQ',
+                'empty' => 'Las preguntas frecuentes estarán disponibles pronto.',
+            ],
+
+            'reviews' => [
+                'title' => 'Reseñas',
+                'summary' => 'Valoración :rating/5 • :count reseñas',
+                'reviewer_fallback' => 'Viajero',
+                'rating_label' => 'Valoración:',
+                'empty' => 'Aún no hay reseñas.',
+            ],
+
+            'summary' => [
+                'title' => 'Resumen',
+                'duration' => 'Duración',
+                'capacity' => 'Capacidad',
+                'category' => 'Categoría',
+                'operator' => 'Operador',
+                'cta_consult' => 'Consultar ahora',
+                'cta_availability' => 'Ver disponibilidad',
+            ],
+        ],
     ],
 
     'rental' => [

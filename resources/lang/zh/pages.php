@@ -29,6 +29,94 @@ return [
             'per_person' => '每人',
             'see_detail' => '查看详情',
         ],
+        'detail' => [
+            'meta_description_fallback' => '高品质拉布安巴焦旅行套餐。',
+            'price_suffix' => '/ 人',
+            'currency_idr' => 'Rp',
+
+            'cta_overview' => '查看详情',
+            'cta_consult' => '行程咨询',
+
+            'badge_max' => '最多 :count',
+
+            'stats' => [
+                'price_from' => '起价',
+                'operator' => '运营方',
+                'availability' => '可用日期',
+            ],
+
+            'availability_not_set' => '尚未设置',
+            'availability_count' => ':count 个日期可用',
+
+            'booking' => [
+                'title' => '快速预订',
+                'note' => '价格会根据所选货币自动调整。',
+                'min' => '最少',
+                'max' => '最多',
+                'pax' => '人',
+                'status' => '状态',
+                'cta_consult_book' => '咨询并预订',
+                'cta_check_availability' => '查看可用日期',
+            ],
+
+            'status' => [
+                'published' => '已发布',
+                'draft' => '草稿',
+                'archived' => '已归档',
+                'unknown' => '未知',
+            ],
+
+            'sections' => [
+                'description' => '行程介绍',
+                'itinerary' => '行程安排',
+                'itinerary_fallback' => '完整行程将由我们的管家提供。',
+                'included' => '包含',
+                'excluded' => '不包含',
+                'included_fallback' => '船宿、餐食、船员与拍摄记录。',
+                'excluded_fallback' => '机票、个人保险与个人消费。',
+                'transportation' => '交通',
+                'destinations' => '目的地',
+                'destinations_fallback' => '旅行中将前往的精彩目的地。',
+                'view_on_maps' => '在地图中查看',
+            ],
+
+            'availability' => [
+                'title' => '可用日期',
+                'empty' => '该套餐尚未设置可用日期日历。请联系管家确认日期。',
+                'calendar_days' => ['日', '一', '二', '三', '四', '五', '六'],
+                'slot_count' => ':count 个名额',
+                'legend_available' => '可用',
+                'legend_closed' => '满员/关闭',
+            ],
+
+            'actions' => [
+                'ask_schedule' => '询问日期并预订',
+                'view_other_packages' => '查看其他套餐',
+            ],
+
+            'faq' => [
+                'title' => '常见问题',
+                'empty' => '常见问题即将上线。',
+            ],
+
+            'reviews' => [
+                'title' => '评价',
+                'summary' => '评分 :rating/5 • :count 条评价',
+                'reviewer_fallback' => '旅行者',
+                'rating_label' => '评分：',
+                'empty' => '暂无评价。',
+            ],
+
+            'summary' => [
+                'title' => '摘要',
+                'duration' => '时长',
+                'capacity' => '人数',
+                'category' => '分类',
+                'operator' => '运营方',
+                'cta_consult' => '立即咨询',
+                'cta_availability' => '查看可用日期',
+            ],
+        ],
     ],
 
     'rental' => [

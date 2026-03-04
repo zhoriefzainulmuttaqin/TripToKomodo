@@ -38,7 +38,7 @@
 
         <div class="mt-4 flex justify-end gap-3">
             <a href="{{ route('admin.blog-posts.index') }}" class="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700">Reset</a>
-            <button class="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white">Terapkan</button>
+            <button type="submit" class="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white">Terapkan</button>
         </div>
     </form>
 
