@@ -15,6 +15,7 @@
 @section('hreflang')
     @php
         $byLang = $package->translations->keyBy('language_code');
+        $fallbackLocale = (string) config('app.fallback_locale', 'en');
     @endphp
     @foreach ($activeLanguages as $language)
         @php
@@ -24,6 +25,13 @@
             <link rel="alternate" hreflang="{{ $language->code }}" href="{{ route('tours.show', ['lang' => $language->code, 'slug' => $t->slug]) }}">
         @endif
     @endforeach
+    @php
+        $x = $byLang->get($fallbackLocale);
+        $xHref = $x && ($x->is_active ?? true) && !empty($x->slug)
+            ? route('tours.show', ['lang' => $fallbackLocale, 'slug' => $x->slug])
+            : url($fallbackLocale);
+    @endphp
+    <link rel="alternate" hreflang="x-default" href="{{ $xHref }}">
 @endsection
 
 @push('styles')

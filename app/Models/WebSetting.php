@@ -10,6 +10,7 @@ class WebSetting extends Model
     public const KEY_SITE_NAME = 'site.name';
     public const KEY_SITE_TAGLINE = 'site.tagline';
     public const KEY_SITE_LOGO = 'site.logo';
+    public const KEY_LOGIN_SIDE_IMAGE = 'site.login_side_image';
 
     public const KEY_HOME_HERO_BACKGROUND_IMAGE = 'home.hero_background_image';
 

@@ -20,6 +20,7 @@
     @foreach ($activeLanguages as $language)
         <link rel="alternate" hreflang="{{ $language->code }}" href="{{ url($language->code) }}">
     @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ url(config('app.fallback_locale', 'en')) }}">
 @endsection
 
 @section('content')

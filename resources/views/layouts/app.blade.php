@@ -13,7 +13,44 @@
             $metaRobots = trim((string) $__env->yieldContent('meta_robots', ''));
             $ogTitle = trim((string) $__env->yieldContent('og_title', $metaTitle));
             $ogDesc = trim((string) $__env->yieldContent('og_description', $metaDesc));
-            $hasQuery = request()->query() !== [];
+
+            // Robots: jangan otomatis noindex untuk pagination (?page=...).
+            $queryKeys = array_map('strtolower', array_keys(request()->query() ?? []));
+            $indexableQueryKeys = ['page'];
+            $noindexQueryKeys = [
+                'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+                'gclid', 'fbclid', 'msclkid', 'igshid',
+                'mc_cid', 'mc_eid',
+            ];
+
+            $shouldNoindex = false;
+            if ($metaRobots === '' && !empty($queryKeys)) {
+                if (!empty(array_intersect($queryKeys, $noindexQueryKeys))) {
+                    $shouldNoindex = true;
+                } else {
+                    $unknownKeys = array_values(array_diff($queryKeys, $indexableQueryKeys));
+                    $shouldNoindex = !empty($unknownKeys);
+                }
+            }
+
+            // Resolve OG image to absolute URL (biar konsisten untuk crawler).
+            $ogImageRaw = trim((string) $__env->yieldContent('og_image', asset('favicon.ico')));
+            $ogImage = $ogImageRaw;
+            if ($ogImage !== '' && !\Illuminate\Support\Str::startsWith($ogImage, ['http://', 'https://'])) {
+                $ogImage = url($ogImage);
+            }
+
+            // OG locale mapping.
+            $locale = (string) app()->getLocale();
+            $ogLocaleMap = [
+                'en' => 'en_US',
+                'id' => 'id_ID',
+                'zh' => 'zh_CN',
+                'es' => 'es_ES',
+                'de' => 'de_DE',
+                'ru' => 'ru_RU',
+            ];
+            $ogLocale = $ogLocaleMap[$locale] ?? str_replace('-', '_', $locale);
         @endphp
 
         <title>{{ $metaTitle }}</title>
@@ -25,7 +62,7 @@
 
         @if ($metaRobots !== '')
             <meta name="robots" content="{{ $metaRobots }}">
-        @elseif ($hasQuery)
+        @elseif ($shouldNoindex)
             <meta name="robots" content="noindex,follow">
         @endif
 
@@ -38,12 +75,29 @@
         <meta property="og:url" content="{{ $canonicalUrl }}">
         <meta property="og:site_name" content="{{ $siteName ?? config('app.name', 'Trip to Komodo') }}">
         <meta property="og:type" content="@yield('og_type', 'website')">
-        <meta property="og:image" content="@yield('og_image', asset('favicon.ico'))">
+        <meta property="og:image" content="{{ $ogImage }}">
+        <meta property="og:image:alt" content="@yield('og_image_alt', $ogTitle)">
+        <meta property="og:locale" content="{{ $ogLocale }}">
+        @foreach ($activeLanguages as $language)
+            @php
+                $code = (string) ($language->code ?? '');
+                $alt = $ogLocaleMap[$code] ?? str_replace('-', '_', $code);
+            @endphp
+            @if ($code !== '' && $code !== $locale && $alt !== '')
+                <meta property="og:locale:alternate" content="{{ $alt }}">
+            @endif
+        @endforeach
 
         <meta name="twitter:card" content="summary_large_image">
+        @if (!empty(config('services.twitter.site')))
+            <meta name="twitter:site" content="{{ config('services.twitter.site') }}">
+        @endif
+        @if (!empty(config('services.twitter.creator')))
+            <meta name="twitter:creator" content="{{ config('services.twitter.creator') }}">
+        @endif
         <meta name="twitter:title" content="{{ $ogTitle }}">
         <meta name="twitter:description" content="{{ $ogDesc }}">
-        <meta name="twitter:image" content="@yield('og_image', asset('favicon.ico'))">
+        <meta name="twitter:image" content="{{ $ogImage }}">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -92,7 +146,18 @@
                         <link rel="alternate" hreflang="{{ $language->code }}" href="{{ $href }}">
                     @endif
                 @endforeach
-                <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
+                @php
+                    $defaultLocale = (string) config('app.fallback_locale', 'en');
+                    $xDefaultHref = null;
+                    try {
+                        $xDefaultHref = route($routeName, array_merge($routeParams, ['lang' => $defaultLocale]));
+                    } catch (\Throwable) {
+                        $xDefaultHref = url($defaultLocale);
+                    }
+                @endphp
+                @if (!empty($xDefaultHref))
+                    <link rel="alternate" hreflang="x-default" href="{{ $xDefaultHref }}">
+                @endif
             @endif
         @endif
 
@@ -166,6 +231,92 @@
                 </a>
             </div>
         @endif
+
+        <script>
+            (() => {
+                const endpoint = @json(route('analytics.collect'));
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                if (!endpoint || !token || window.location.pathname.startsWith('/admin')) {
+                    return;
+                }
+
+                const key = 'tk_analytics_session';
+                let sessionId = null;
+                try {
+                    sessionId = window.sessionStorage.getItem(key);
+                    if (!sessionId) {
+                        const randomPart = Math.random().toString(36).slice(2);
+                        sessionId = `${Date.now()}-${randomPart}`;
+                        window.sessionStorage.setItem(key, sessionId);
+                    }
+                } catch (_) {
+                    sessionId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+                }
+
+                const params = new URLSearchParams(window.location.search);
+                const basePayload = {
+                    session_id: sessionId,
+                    page_path: window.location.pathname,
+                    page_url: window.location.href,
+                    referrer: document.referrer || null,
+                    utm_source: params.get('utm_source'),
+                    utm_medium: params.get('utm_medium'),
+                    utm_campaign: params.get('utm_campaign'),
+                    utm_term: params.get('utm_term'),
+                    utm_content: params.get('utm_content'),
+                };
+
+                const sendEvent = (eventType, extra = {}) => {
+                    const payload = {
+                        event_type: eventType,
+                        ...basePayload,
+                        ...extra,
+                    };
+
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        keepalive: true,
+                        body: JSON.stringify(payload),
+                    }).catch(() => {});
+                };
+
+                const startedAt = Date.now();
+                window.addEventListener('pagehide', () => {
+                    const seconds = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
+                    sendEvent('page_view', { engagement_seconds: seconds });
+                }, { once: true });
+
+                document.addEventListener('click', (event) => {
+                    const anchor = event.target.closest('a[href]');
+                    if (!anchor) {
+                        return;
+                    }
+
+                    const href = (anchor.getAttribute('href') || '').toLowerCase();
+                    const isContactLink =
+                        href.startsWith('tel:') ||
+                        href.startsWith('mailto:') ||
+                        href.includes('wa.me') ||
+                        href.includes('api.whatsapp.com') ||
+                        anchor.dataset.analyticsContact === '1';
+
+                    if (!isContactLink) {
+                        return;
+                    }
+
+                    sendEvent('contact_click', {
+                        contact_target: anchor.getAttribute('href') || anchor.textContent?.trim() || 'contact_link',
+                    });
+                }, { passive: true });
+            })();
+        </script>
 
         @stack('scripts')
     </body>

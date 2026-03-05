@@ -735,6 +735,24 @@
                                 <label class="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Upload logo baru</label>
                                 <input type="file" name="site_logo" accept="image/*" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" />
                             </div>
+
+                            <div class="mt-6">
+                                <p class="text-sm font-semibold text-slate-900">Gambar Samping Login</p>
+                                @if (!empty($loginSideImageUrl))
+                                    <div class="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                                        <img src="{{ $loginSideImageUrl }}" alt="Login side image" class="h-40 w-full object-cover" />
+                                    </div>
+                                    <label class="mt-3 flex items-center gap-2 text-sm text-slate-700">
+                                        <input type="checkbox" name="remove_login_side_image" value="1" class="rounded border-slate-300" />
+                                        Hapus gambar login saat ini
+                                    </label>
+                                @endif
+
+                                <div class="mt-4">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Upload gambar login</label>
+                                    <input type="file" name="login_side_image" accept="image/*" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" />
+                                </div>
+                            </div>
                         </div>
                     </div>
 

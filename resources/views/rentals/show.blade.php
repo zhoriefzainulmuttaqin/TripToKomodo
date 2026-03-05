@@ -80,6 +80,9 @@
 @section('og_image', $ogImage)
 
 @section('hreflang')
+    @php
+        $fallbackLocale = (string) config('app.fallback_locale', 'en');
+    @endphp
     @foreach ($activeLanguages as $language)
         @php
             $t = $byLang->get($language->code);
@@ -88,7 +91,72 @@
             <link rel="alternate" hreflang="{{ $language->code }}" href="{{ route('rental.mobil.show', ['lang' => $language->code, 'slug' => $t->slug]) }}">
         @endif
     @endforeach
+    @php
+        $x = $byLang->get($fallbackLocale);
+        $xHref = $x && ($x->is_active ?? true) && !empty($x->slug)
+            ? route('rental.mobil.show', ['lang' => $fallbackLocale, 'slug' => $x->slug])
+            : url($fallbackLocale);
+    @endphp
+    <link rel="alternate" hreflang="x-default" href="{{ $xHref }}">
 @endsection
+
+@push('schema')
+    @php
+        $canonical = url()->current();
+
+        $imageAbs = $ogImage;
+        if (!empty($imageAbs) && !\Illuminate\Support\Str::startsWith($imageAbs, ['http://', 'https://'])) {
+            $imageAbs = url($imageAbs);
+        }
+
+        $breadcrumbSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                [
+                    '@type' => 'ListItem',
+                    'position' => 1,
+                    'name' => __('rentals.show.breadcrumb_home'),
+                    'item' => route('home', ['lang' => app()->getLocale()]),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 2,
+                    'name' => __('rentals.show.breadcrumb_rental'),
+                    'item' => $rentalIndexUrl,
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 3,
+                    'name' => $name,
+                    'item' => $canonical,
+                ],
+            ],
+        ];
+
+        $productSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $name,
+            'description' => \Illuminate\Support\Str::limit(strip_tags((string) $metaDesc), 160, ''),
+            'url' => $canonical,
+            'offers' => [
+                '@type' => 'Offer',
+                'priceCurrency' => $currencyCode,
+                'price' => $amount,
+                'url' => $canonical,
+                'availability' => 'https://schema.org/InStock',
+            ],
+        ];
+
+        if (!empty($imageAbs)) {
+            $productSchema['image'] = [$imageAbs];
+        }
+    @endphp
+
+    <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    <script type="application/ld+json">{!! json_encode($productSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
 
 @section('content')
     <section class="relative overflow-hidden">

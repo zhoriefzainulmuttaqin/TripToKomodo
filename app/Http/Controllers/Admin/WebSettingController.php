@@ -46,6 +46,17 @@ class WebSettingController
             }
         }
 
+        $loginSideImagePath = WebSetting::get(WebSetting::KEY_LOGIN_SIDE_IMAGE);
+        $loginSideImageUrl = null;
+        if (!empty($loginSideImagePath)) {
+            try {
+                $loginSideImageUrl = '/storage/' . ltrim((string) $loginSideImagePath, '/');
+            } catch (\Throwable) {
+                $loginSideImageUrl = null;
+            }
+        }
+
+
         $contactEmail = WebSetting::get(WebSetting::KEY_CONTACT_EMAIL);
         $contactPhone = WebSetting::get(WebSetting::KEY_CONTACT_PHONE);
         $contactWhatsapp = WebSetting::get(WebSetting::KEY_CONTACT_WHATSAPP);
@@ -70,6 +81,9 @@ class WebSettingController
             'siteTagline' => $siteTagline,
             'siteLogoPath' => $siteLogoPath,
             'siteLogoUrl' => $siteLogoUrl,
+            'loginSideImagePath' => $loginSideImagePath,
+            'loginSideImageUrl' => $loginSideImageUrl,
+
 
             'heroBackgroundPath' => $heroBackgroundPath,
             'heroBackgroundUrl' => $heroBackgroundUrl,
@@ -176,6 +190,9 @@ class WebSettingController
             'site_tagline' => ['nullable', 'string', 'max:80'],
             'site_logo' => ['nullable', 'image', 'max:5120'],
             'remove_site_logo' => ['nullable', 'boolean'],
+            'login_side_image' => ['nullable', 'image', 'max:5120'],
+            'remove_login_side_image' => ['nullable', 'boolean'],
+
 
 
             // About CMS
@@ -439,6 +456,37 @@ class WebSettingController
                 WebSetting::forget(WebSetting::KEY_SITE_LOGO);
                 $hasChanges = true;
                 $messages[] = 'Logo website berhasil dihapus.';
+            }
+        }
+
+        $currentLoginSideImagePath = WebSetting::get(WebSetting::KEY_LOGIN_SIDE_IMAGE);
+        if ($request->hasFile('login_side_image')) {
+            $file = $request->file('login_side_image');
+            $newPath = Storage::disk('public')->putFile('web-settings/identity', $file);
+
+            if (!empty($currentLoginSideImagePath) && $currentLoginSideImagePath !== $newPath) {
+                try {
+                    Storage::disk('public')->delete($currentLoginSideImagePath);
+                } catch (\Throwable) {
+                    // ignore
+                }
+            }
+
+            WebSetting::set(WebSetting::KEY_LOGIN_SIDE_IMAGE, $newPath);
+            $hasChanges = true;
+            $messages[] = 'Gambar samping login berhasil diperbarui.';
+        } else {
+            $removeLoginImage = (bool) ($validated['remove_login_side_image'] ?? false);
+            if ($removeLoginImage && !empty($currentLoginSideImagePath)) {
+                try {
+                    Storage::disk('public')->delete($currentLoginSideImagePath);
+                } catch (\Throwable) {
+                    // ignore
+                }
+
+                WebSetting::forget(WebSetting::KEY_LOGIN_SIDE_IMAGE);
+                $hasChanges = true;
+                $messages[] = 'Gambar samping login berhasil dihapus.';
             }
         }
 

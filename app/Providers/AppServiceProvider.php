@@ -66,6 +66,11 @@ class AppServiceProvider extends ServiceProvider
             $siteLogoUrl = !empty($siteLogoPath)
                 ? '/storage/' . ltrim((string) $siteLogoPath, '/')
                 : null;
+
+            $loginSideImagePath = WebSetting::get(WebSetting::KEY_LOGIN_SIDE_IMAGE);
+            $loginSideImageUrl = !empty($loginSideImagePath)
+                ? '/storage/' . ltrim((string) $loginSideImagePath, '/')
+                : null;
         } catch (\Throwable) {
             $siteName = (string) config('app.name', 'Trip to Komodo');
             $siteTagline = '';
@@ -375,6 +380,8 @@ class AppServiceProvider extends ServiceProvider
             'siteTagline' => $siteTagline,
             'siteLogoUrl' => $siteLogoUrl,
             'siteLogoPath' => $siteLogoPath,
+            'loginSideImageUrl' => $loginSideImageUrl,
+            'loginSideImagePath' => $loginSideImagePath,
             'siteInitials' => $siteInitials,
 
             'contactSettings' => [

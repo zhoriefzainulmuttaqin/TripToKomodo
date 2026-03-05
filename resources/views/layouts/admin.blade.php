@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title', 'Admin | ' . ($siteName ?? 'Trip to Komodo'))</title>
 
-
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
@@ -20,120 +19,160 @@
                 vertical-align: middle;
             }
 
-            /* Alpine.js cloak (global) */
             [x-cloak] { display: none !important; }
         </style>
 
         @stack('styles')
         @stack('schema')
-
     </head>
-    <body class="bg-white text-slate-900 antialiased">
-        <div class="min-h-screen">
-            <div class="border-b border-emerald-100 bg-white">
-                <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-                    <div class="flex items-center gap-3">
+    <body class="bg-slate-100 text-slate-900 antialiased">
+        @php
+            $routeIs = fn (string $name) => request()->routeIs($name);
+            $activeLink = 'bg-emerald-900 text-white shadow-sm';
+            $inactiveLink = 'text-slate-600 hover:bg-slate-100 hover:text-slate-900';
+            $isWebSettings = $routeIs('admin.web-settings.*');
+            $isRentalCars = $routeIs('admin.rental-cars.*');
+            $isRentalPage = $routeIs('admin.rental.*');
+            $isAnalytics = $routeIs('admin.analytics.*');
+            $wsSection = (string) request()->query('section', 'all');
+        @endphp
+
+        <div class="min-h-screen lg:flex">
+            <aside class="hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white lg:sticky lg:top-0 lg:block">
+                <div class="flex h-full flex-col overflow-y-auto px-4 py-6">
+                    <div class="flex items-center gap-3 border-b border-slate-200 pb-6">
                         @if (!empty($siteLogoUrl))
-                            <span class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white border border-emerald-100">
+                            <span class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white border border-slate-200">
                                 <img src="{{ $siteLogoUrl }}" alt="{{ $siteName ?? 'Trip to Komodo' }}" class="h-full w-full object-contain" loading="eager" decoding="async" />
                             </span>
                         @else
-                            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-semibold">{{ $siteInitials ?? 'TK' }}</span>
+                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-semibold">{{ $siteInitials ?? 'TK' }}</span>
                         @endif
+
                         <div>
-                            <p class="text-xs uppercase tracking-[0.25em] text-emerald-600">Admin Panel</p>
-                            <p class="text-base font-semibold">{{ $siteName ?? 'Trip to Komodo' }}</p>
+                            <p class="text-lg font-bold leading-none text-slate-900">{{ $siteName ?? 'Trip to Komodo' }}</p>
+                            <p class="mt-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Admin Dashboard</p>
                         </div>
                     </div>
 
-
-                    <div class="flex items-center gap-3 text-sm">
-                        <a href="{{ route('home', ['lang' => app()->getLocale()]) }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs text-slate-700 hover:text-emerald-700">Lihat Website</a>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[240px_1fr]">
-                @php
-                    $routeIs = fn (string $name) => request()->routeIs($name);
-                    $activeLink = 'bg-white text-emerald-700';
-                    $inactiveLink = 'text-slate-800 hover:bg-white hover:text-emerald-700';
-                    $isWebSettings = $routeIs('admin.web-settings.*');
-                    $isRentalCars = $routeIs('admin.rental-cars.*');
-                    $isRentalPage = $routeIs('admin.rental.*');
-                    $wsSection = (string) request()->query('section', 'all');
-
-                    $supportedLocales = ['id', 'en', 'zh', 'es', 'de', 'ru'];
-                    $adminLang = (string) request()->query('lang', (string) (session('locale') ?? config('app.locale', 'en')));
-                    if (!in_array($adminLang, $supportedLocales, true)) {
-                        $adminLang = 'en';
-                    }
-                @endphp
-
-                <aside class="rounded-3xl border border-emerald-100 bg-emerald-50 p-4">
-                    <nav class="space-y-4 text-sm">
+                    <nav class="mt-5 space-y-5 text-sm">
                         <div>
-                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Umum</p>
-                            <a href="{{ route('admin.dashboard') }}" class="block rounded-2xl px-4 py-3 {{ $routeIs('admin.dashboard') ? $activeLink : $inactiveLink }}">Dashboard</a>
+                            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Dashboards</p>
+                            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.dashboard') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">dashboard</span>
+                                <span>Dashboard</span>
+                            </a>
+                            <a href="{{ route('admin.analytics.index') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $isAnalytics ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">monitoring</span>
+                                <span>Analytics</span>
+                            </a>
                         </div>
 
                         <div>
-                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Konten</p>
-                            <a href="{{ route('admin.destinations.index') }}" class="block rounded-2xl px-4 py-3 {{ $routeIs('admin.destinations.*') ? $activeLink : $inactiveLink }}">Destinasi</a>
-                            <a href="{{ route('admin.faqs.index') }}" class="mt-1 block rounded-2xl px-4 py-3 {{ $routeIs('admin.faqs.*') ? $activeLink : $inactiveLink }}">FAQ</a>
-                            <a href="{{ route('admin.blog-posts.index') }}" class="mt-1 block rounded-2xl px-4 py-3 {{ $routeIs('admin.blog-posts.*') ? $activeLink : $inactiveLink }}">Komodo Insider</a>
-
-
-                            <a href="{{ route('admin.rental-cars.index') }}" class="mt-1 block rounded-2xl px-4 py-3 {{ $isRentalCars ? $activeLink : $inactiveLink }}">Rental Mobil</a>
+                            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Konten</p>
+                            <a href="{{ route('admin.destinations.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.destinations.*') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">map</span>
+                                <span>Destinasi</span>
+                            </a>
+                            <a href="{{ route('admin.faqs.index') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.faqs.*') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">help</span>
+                                <span>FAQ</span>
+                            </a>
+                            <a href="{{ route('admin.blog-posts.index') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.blog-posts.*') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">article</span>
+                                <span>Komodo Insider</span>
+                            </a>
                         </div>
 
                         <div>
-                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Trip</p>
-                            <a href="{{ route('admin.tour-categories.index') }}" class="block rounded-2xl px-4 py-3 {{ $routeIs('admin.tour-categories.*') ? $activeLink : $inactiveLink }}">Kategori Trip</a>
-                            <a href="{{ route('admin.tour-packages.index') }}" class="mt-1 block rounded-2xl px-4 py-3 {{ $routeIs('admin.tour-packages.*') ? $activeLink : $inactiveLink }}">Paket Trip</a>
+                            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Trip & Rental</p>
+                            <a href="{{ route('admin.tour-categories.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.tour-categories.*') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">category</span>
+                                <span>Kategori Trip</span>
+                            </a>
+                            <a href="{{ route('admin.tour-packages.index') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.tour-packages.*') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">luggage</span>
+                                <span>Paket Trip</span>
+                            </a>
+                            <a href="{{ route('admin.rental-cars.index') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $isRentalCars ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">directions_car</span>
+                                <span>Rental Mobil</span>
+                            </a>
+                            <a href="{{ route('admin.rental.edit') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $isRentalPage ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">settings</span>
+                                <span>Halaman Rental</span>
+                            </a>
                         </div>
 
                         <div>
-                            <p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-700/80">Pengaturan</p>
+                            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">CRM & Tools</p>
+                            <a href="{{ route('admin.customers.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.customers.*') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">groups</span>
+                                <span>Customers</span>
+                            </a>
+                            <a href="{{ route('admin.tools.index') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.tools.index') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">build</span>
+                                <span>Tools</span>
+                            </a>
+                            <a href="{{ route('admin.tools.invoices.index') }}" class="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $routeIs('admin.tools.invoices.*') ? $activeLink : $inactiveLink }}">
+                                <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+                                <span>Invoices</span>
+                            </a>
+                        </div>
 
-                            <details class="rounded-2xl" {{ $isWebSettings ? 'open' : '' }}>
-                                <summary class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-4 py-3 {{ $isWebSettings ? $activeLink : $inactiveLink }}">
-                                    <span>Website Settings</span>
-                                    <span class="material-symbols-outlined text-[18px] leading-none" aria-hidden="true">expand_more</span>
-
+                        <div>
+                            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Pengaturan</p>
+                            <details class="rounded-xl" {{ $isWebSettings ? 'open' : '' }}>
+                                <summary class="flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2.5 {{ $isWebSettings ? $activeLink : $inactiveLink }}">
+                                    <span class="flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-[18px]">tune</span>
+                                        <span>Website Settings</span>
+                                    </span>
+                                    <span class="material-symbols-outlined text-[18px] leading-none">expand_more</span>
                                 </summary>
 
-                                <div class="mt-2 space-y-1 pl-2">
-                                    @php
-                                        $wsBase = route('admin.web-settings.edit');
-                                        $wsAll = route('admin.web-settings.edit', ['section' => 'all']);
-                                        $wsIdentity = route('admin.web-settings.edit', ['section' => 'identity']);
-                                        $wsFooter = route('admin.web-settings.edit', ['section' => 'footer']);
-                                        $wsAbout = route('admin.web-settings.edit', ['section' => 'about']);
-                                        $wsContact = route('admin.web-settings.edit', ['section' => 'contact']);
-                                        $wsHero = route('admin.web-settings.edit', ['section' => 'home-hero']);
-                                    @endphp
-
-                                    <a href="{{ $wsAll }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'all') || ($isWebSettings && $wsSection === '') ? $activeLink : $inactiveLink }}">Semua</a>
-                                    <a href="{{ $wsIdentity }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'identity') ? $activeLink : $inactiveLink }}">Identitas</a>
-                                    <a href="{{ $wsFooter }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'footer') ? $activeLink : $inactiveLink }}">Footer</a>
-                                    <a href="{{ $wsAbout }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'about') ? $activeLink : $inactiveLink }}">About Us</a>
-                                    <a href="{{ $wsContact }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'contact') ? $activeLink : $inactiveLink }}">Kontak</a>
-                                    <a href="{{ $wsHero }}" class="block rounded-xl px-4 py-2 text-xs {{ ($isWebSettings && $wsSection === 'home-hero') ? $activeLink : $inactiveLink }}">Home Hero</a>
+                                <div class="mt-2 space-y-1 pl-3 pr-1">
+                                    <a href="{{ route('admin.web-settings.edit', ['section' => 'all']) }}" class="block rounded-lg px-3 py-2 text-xs {{ ($isWebSettings && $wsSection === 'all') || ($isWebSettings && $wsSection === '') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700' }}">Semua</a>
+                                    <a href="{{ route('admin.web-settings.edit', ['section' => 'identity']) }}" class="block rounded-lg px-3 py-2 text-xs {{ ($isWebSettings && $wsSection === 'identity') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700' }}">Identitas</a>
+                                    <a href="{{ route('admin.web-settings.edit', ['section' => 'footer']) }}" class="block rounded-lg px-3 py-2 text-xs {{ ($isWebSettings && $wsSection === 'footer') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700' }}">Footer</a>
+                                    <a href="{{ route('admin.web-settings.edit', ['section' => 'about']) }}" class="block rounded-lg px-3 py-2 text-xs {{ ($isWebSettings && $wsSection === 'about') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700' }}">About Us</a>
+                                    <a href="{{ route('admin.web-settings.edit', ['section' => 'contact']) }}" class="block rounded-lg px-3 py-2 text-xs {{ ($isWebSettings && $wsSection === 'contact') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700' }}">Kontak</a>
+                                    <a href="{{ route('admin.web-settings.edit', ['section' => 'home-hero']) }}" class="block rounded-lg px-3 py-2 text-xs {{ ($isWebSettings && $wsSection === 'home-hero') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700' }}">Home Hero</a>
                                 </div>
                             </details>
                         </div>
                     </nav>
-                </aside>
+                </div>
+            </aside>
 
-                <main>
+            <div class="flex min-w-0 flex-1 flex-col">
+                <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
+                    <div class="flex flex-wrap items-center justify-between gap-4 px-4 py-4 lg:px-8">
+                        <div class="flex min-w-0 flex-1 items-center gap-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 lg:hidden">
+                                <span class="material-symbols-outlined">menu</span>
+                            </span>
+
+                            <div class="relative w-full max-w-md">
+                                <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">search</span>
+                                <input type="text" placeholder="Search..." class="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-700 placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:outline-none" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <a href="{{ route('home', ['lang' => app()->getLocale()]) }}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:text-emerald-700">Lihat Website</a>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">Logout</button>
+                            </form>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="flex-1 p-4 lg:p-8">
                     @if (session('status'))
-                        <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                             {{ session('status') }}
                         </div>
                     @endif

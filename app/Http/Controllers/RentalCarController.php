@@ -83,7 +83,7 @@ class RentalCarController extends Controller
                     return redirect()->route('rental.mobil.show', [
                         'lang' => $locale,
                         'slug' => $target->slug,
-                    ]);
+                    ], 301);
                 }
             }
 

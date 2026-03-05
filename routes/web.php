@@ -11,6 +11,11 @@ use App\Http\Controllers\Admin\WebSettingController as AdminWebSettingController
 use App\Http\Controllers\Admin\RentalController as AdminRentalController;
 use App\Http\Controllers\Admin\RentalCarController as AdminRentalCarController;
 use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
+use App\Http\Controllers\Admin\ToolsController as AdminToolsController;
+use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\AnalyticsController as AdminAnalyticsController;
+use App\Http\Controllers\AnalyticsEventController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactBookingController;
 use App\Http\Controllers\HomeController;
@@ -142,6 +147,14 @@ Route::get('/lang/{lang}', function (string $lang) {
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/{lang}/sitemap.xml', [SitemapController::class, 'index'])->where(['lang' => 'id|en|zh|es|de|ru'])->name('sitemap.lang');
 
+Route::post('/analytics/collect', [AnalyticsEventController::class, 'store'])
+    ->withoutMiddleware([
+        SeoRedirectMiddleware::class,
+        DetectLocaleAndCurrency::class,
+    ])
+    ->middleware('throttle:240,1')
+    ->name('analytics.collect');
+
 Route::get('/dashboard', function () {
     if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()?->is_admin) {
         return redirect()->route('admin.dashboard');
@@ -165,6 +178,7 @@ Route::prefix('admin')
     ])
     ->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('analytics', [AdminAnalyticsController::class, 'index'])->name('analytics.index');
         Route::resource('destinations', AdminDestinationController::class)->except(['show']);
         Route::resource('faqs', AdminFaqController::class)->except(['show']);
         Route::resource('blog-posts', AdminBlogPostController::class)->except(['show']);
@@ -178,6 +192,20 @@ Route::prefix('admin')
 
         Route::get('web-settings', [AdminWebSettingController::class, 'edit'])->name('web-settings.edit');
         Route::put('web-settings', [AdminWebSettingController::class, 'update'])->name('web-settings.update');
+
+        Route::get('customers/options/countries', [AdminCustomerController::class, 'countries'])->name('customers.countries');
+        Route::get('customers/options/search', [AdminCustomerController::class, 'search'])->name('customers.search');
+        Route::resource('customers', AdminCustomerController::class);
+
+        Route::prefix('tools')->name('tools.')->group(function () {
+            Route::get('/', [AdminToolsController::class, 'index'])->name('index');
+
+            Route::get('/invoices', [AdminInvoiceController::class, 'index'])->name('invoices.index');
+            Route::get('/invoices/create', [AdminInvoiceController::class, 'create'])->name('invoices.create');
+            Route::post('/invoices', [AdminInvoiceController::class, 'store'])->name('invoices.store');
+            Route::get('/invoices/{invoice}', [AdminInvoiceController::class, 'show'])->name('invoices.show');
+            Route::get('/invoices/{invoice}/pdf', [AdminInvoiceController::class, 'pdf'])->name('invoices.pdf');
+        });
 
         Route::resource('rental-cars', AdminRentalCarController::class)->except(['show']);
         Route::put('rental-cars/{id}/restore', [AdminRentalCarController::class, 'restore'])->name('rental-cars.restore');

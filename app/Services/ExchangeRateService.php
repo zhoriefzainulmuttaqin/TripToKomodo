@@ -10,10 +10,11 @@ class ExchangeRateService
 {
     public function updateRates(?array $symbols = null): void
     {
-        // Default endpoint if not set
-        $endpoint = config('services.exchange_rate.endpoint', 'https://open.er-api.com/v6/latest/IDR');
-        
+        // Default endpoint if not set (env bisa null walau key config ada)
+        $endpoint = (string) (config('services.exchange_rate.endpoint') ?: 'https://open.er-api.com/v6/latest/IDR');
+
         $response = Http::timeout(10)->get($endpoint);
+
 
         if (!$response->successful()) {
             return;

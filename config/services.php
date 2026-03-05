@@ -41,7 +41,7 @@ return [
     ],
 
     'exchange_rate' => [
-        'endpoint' => env('EXCHANGE_RATE_ENDPOINT'),
+        'endpoint' => env('EXCHANGE_RATE_ENDPOINT', 'https://open.er-api.com/v6/latest/IDR'),
     ],
 
     'whatsapp' => [
@@ -52,6 +52,11 @@ return [
     'retargeting' => [
         'meta_pixel_id' => env('META_PIXEL_ID'),
         'google_ads_id' => env('GOOGLE_ADS_ID'),
+    ],
+
+    'twitter' => [
+        'site' => env('TWITTER_SITE'),
+        'creator' => env('TWITTER_CREATOR'),
     ],
 
 ];

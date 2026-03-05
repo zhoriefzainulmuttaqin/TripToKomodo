@@ -9,6 +9,7 @@
 @section('title', '404 | Halaman tidak ditemukan')
 @section('meta_description', 'Halaman yang Anda cari tidak ditemukan. Silakan kembali ke beranda atau jelajahi paket trip kami.')
 @section('og_type', 'website')
+@section('meta_robots', 'noindex,follow')
 
 @section('content')
     <section class="mx-auto max-w-6xl px-6 py-20">

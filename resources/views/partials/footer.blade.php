@@ -9,6 +9,8 @@
         $homeUrl = route('home', ['lang' => $locale]);
         $contactPageUrl = route('contact', ['lang' => $locale]);
         $toursUrl = route('tours.index', ['lang' => $locale]);
+        $aboutUrl = route('about', ['lang' => $locale]);
+        $blogUrl = route('blog.index', ['lang' => $locale]);
 
         $footerTitle = $footerSettings['title'] ?? ($siteName ?? 'Trip to Komodo');
         $footerDesc = $footerSettings['description'] ?? '';
@@ -34,25 +36,27 @@
             </div>
 
             <div>
-                <h4 class="text-sm font-semibold text-emerald-600">Kontak</h4>
+                <h4 class="text-sm font-semibold text-emerald-600">{{ __('home.footer.contact_title') }}</h4>
                 <div class="mt-3 space-y-2 text-sm text-slate-600">
-                    <p>Telepon: {{ $contactPhone }}</p>
-                    <a href="{{ $contactWhatsappUrl }}" class="inline-flex hover:text-emerald-700">WhatsApp: {{ $contactWhatsapp }}</a>
-                    <a href="mailto:{{ $contactEmail }}" class="block hover:text-emerald-700">Email: {{ $contactEmail }}</a>
+                    <p>{{ __('home.footer.phone_label') }}: {{ $contactPhone }}</p>
+                    <a href="{{ $contactWhatsappUrl }}" class="inline-flex hover:text-emerald-700">{{ __('home.footer.whatsapp_label') }}: {{ $contactWhatsapp }}</a>
+                    <a href="mailto:{{ $contactEmail }}" class="block hover:text-emerald-700">{{ __('home.footer.email_label') }}: {{ $contactEmail }}</a>
                 </div>
             </div>
 
             <div>
-                <h4 class="text-sm font-semibold text-emerald-600">Quick Links</h4>
+                <h4 class="text-sm font-semibold text-emerald-600">{{ __('home.footer.quick_links_title') }}</h4>
                 <ul class="mt-3 space-y-2 text-sm text-slate-600">
-                    <li><a href="{{ $toursUrl }}" class="hover:text-emerald-700">Paket Trip</a></li>
-                    <li><a href="{{ $homeUrl }}#faq" class="hover:text-emerald-700">FAQ</a></li>
-                    <li><a href="{{ $contactPageUrl }}" class="hover:text-emerald-700">Konsultasi</a></li>
+                    <li><a href="{{ $toursUrl }}" class="hover:text-emerald-700">{{ __('home.footer.quick_links_tours') }}</a></li>
+                    <li><a href="{{ $homeUrl }}#faq" class="hover:text-emerald-700">{{ __('home.footer.quick_links_faq') }}</a></li>
+                    <li><a href="{{ $aboutUrl }}" class="hover:text-emerald-700">{{ __('home.footer.quick_links_about') }}</a></li>
+                    <li><a href="{{ $blogUrl }}" class="hover:text-emerald-700">{{ __('home.footer.quick_links_blog') }}</a></li>
+                    <li><a href="{{ $contactPageUrl }}" class="hover:text-emerald-700">{{ __('home.footer.quick_links_consultation') }}</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="text-sm font-semibold text-emerald-600">Metode Pembayaran</h4>
+                <h4 class="text-sm font-semibold text-emerald-600">{{ __('home.footer.payment_methods_title') }}</h4>
                 @if (!empty($paymentMethods))
                     <div class="mt-3 flex flex-wrap gap-2">
                         @foreach ($paymentMethods as $method)
@@ -63,10 +67,10 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="mt-3 text-sm text-slate-500">Belum diatur.</p>
+                    <p class="mt-3 text-sm text-slate-500">{{ __('home.footer.not_configured') }}</p>
                 @endif
 
-                <h4 class="mt-6 text-sm font-semibold text-emerald-600">Sosial Media</h4>
+                <h4 class="mt-6 text-sm font-semibold text-emerald-600">{{ __('home.footer.social_media_title') }}</h4>
                 @if (!empty($socialLinks))
                     <div class="mt-3 space-y-2 text-sm">
                         @foreach ($socialLinks as $key => $url)
@@ -100,7 +104,7 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="mt-3 text-sm text-slate-500">Belum diatur.</p>
+                    <p class="mt-3 text-sm text-slate-500">{{ __('home.footer.not_configured') }}</p>
                 @endif
             </div>
         </div>
